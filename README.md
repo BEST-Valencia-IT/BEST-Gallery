@@ -41,5 +41,5 @@ pip freeze > requirements.txt
 
 ## TODO
 - [ ] Seleccionar carpeta donde descargar los archivos.
-- [ ] Definir la conexion de pysftp como una variable para no tener que crear varias conexiones. También necesario para cnopts.
+- [X] Definir la conexion de pysftp como una variable para no tener que crear varias conexiones. También necesario para cnopts.
 - [ ] Quitar sleeps.

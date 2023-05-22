@@ -14,7 +14,8 @@ server_address = 'home500757070.1and1-data.host'
 
 
 class ejemploGUI(QMainWindow):
-
+    cnopts = pysftp.CnOpts()
+    cnopts.hostkeys = None
     def __init__(self):
         super().__init__()
         uic.loadUi("Menu.ui", self)
@@ -46,19 +47,17 @@ class ejemploGUI(QMainWindow):
         self.listWidget.itemDoubleClicked.connect(self.seleccionar_carpeta)
         self.lineEdit_carpeta.setText("Nueva_Carpeta")
         self.lineEdit_carpeta.installEventFilter(self)
-
+        self.conexion= pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
+                                   cnopts=ejemploGUI.cnopts)
     def subida(self):
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
+        
         self.etiqueta2.setText("")
         self.etiqueta.setText("")
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
-                with conexion.cd(self.directorio_actual):  # temporarily chdir to public
-                    conexion.put(self.archivo_subir)
+            with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
+                    self.conexion.put(self.archivo_subir)
                     # conexion.get('mapa1.png')
-                    print(conexion.listdir())
+                    print(self.conexion.listdir())
                     self.cancelar_subida()
                     self.probarlista()
         except:
@@ -71,11 +70,8 @@ class ejemploGUI(QMainWindow):
         time.sleep(1)
         self.archivos.setEnabled(True)
         self.try_conexion.setEnabled(True)
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
+
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
                 self.etiqueta2.setText("\t\tConexión establecida satisfactoriamente.")
         except:
             self.etiqueta2.setText("Ha habido algún error. Asegúrate de pagar el wifi antes de volver a intentarlo.")
@@ -85,11 +81,7 @@ class ejemploGUI(QMainWindow):
         self.try_conexion_2.setEnabled(False)
         time.sleep(1)
         self.try_conexion_2.setEnabled(True)
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
                 self.etiqueta2_2.setText("\t\tConexión establecida satisfactoriamente.")
         except:
             self.etiqueta2_2.setText("Ha habido algún error. Asegúrate de pagar el wifi antes de volver a intentarlo.")
@@ -119,15 +111,12 @@ class ejemploGUI(QMainWindow):
             self.etiqueta.setText("No se ha seleccionado ningún archivo.")
 
     def probarlista(self):
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
+        
         self.listWidget.clear()
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
-                with conexion.cd(self.directorio_actual):  # temporarily chdir to public
+                with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
                     # conexion.get('mapa1.png')
-                    lista = conexion.listdir()
+                    lista = self.conexion.listdir()
                     self.archivos_dir = []
                     self.carpetas_dir = list()
                     for nombre in lista:
@@ -168,11 +157,7 @@ class ejemploGUI(QMainWindow):
 
     def descargar(self):
         self.label_archivo_elegido.setText('')
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
-        with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                               cnopts=cnopts) as conexion:
-            with conexion.cd(self.directorio_actual):  # temporarily chdir to public
+        with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
                 """conexion.get_r(self.archivo_descargar,'.')"""
                 if self.directorio_actual != '/':
                     pordescargar = self.directorio_actual + '/' + self.archivo_descargar
@@ -181,7 +166,7 @@ class ejemploGUI(QMainWindow):
                     pordescargar = self.directorio_actual + self.archivo_descargar
                     local = os.path.join(os.getcwd(), self.archivo_descargar)
 
-                conexion.get(pordescargar, local)
+                self.conexion.get(pordescargar, local)
                 """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
                 self.bdescarga.setEnabled(False)
                 self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
@@ -244,19 +229,15 @@ class ejemploGUI(QMainWindow):
         nombre_carpeta = self.lineEdit_carpeta.text()
         self.lineEdit_carpeta.clear()
         if not nombre_carpeta: nombre_carpeta = "Nueva_Carpeta"
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
                 if self.directorio_actual != '/':
                     nueva = self.directorio_actual + '/' + nombre_carpeta
                 else:
                     nueva = self.directorio_actual + nombre_carpeta
-                if (conexion.isdir(nueva) == True):
+                if (self.conexion.isdir(nueva) == True):
                     messagebox.showerror("Error", "Nombre de la carpeta ya en uso")
                 else:
-                    conexion.makedirs(nueva)
+                    self.conexion.makedirs(nueva)
                     self.directorio_actual = nueva
                     self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
                     self.probarlista()
@@ -266,11 +247,7 @@ class ejemploGUI(QMainWindow):
             messagebox.showerror("Errorcito", "Ni lo has intentado")
 
     def renombrar(self):
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
 
                 nombre_carpeta = askstring('Renombrar', 'Inserta el nuevo nombre')
                 if self.directorio_actual != '/':
@@ -279,7 +256,7 @@ class ejemploGUI(QMainWindow):
                 else:
                     nueva = self.directorio_actual + nombre_carpeta
                     vieja = self.directorio_actual + self.archivo_descargar
-                conexion.rename(vieja, nueva)
+                self.conexion.rename(vieja, nueva)
                 self.probarlista()
 
         except:
@@ -289,8 +266,6 @@ class ejemploGUI(QMainWindow):
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
         try:
-            with pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=cnopts) as conexion:
                 if self.directorio_actual != '/':
                     objetivo = "Reciclaje/" + self.archivo_descargar
                     actual = self.directorio_actual + '/' + self.archivo_descargar
@@ -298,15 +273,15 @@ class ejemploGUI(QMainWindow):
                     objetivo = "Reciclaje" + self.directorio_actual + self.archivo_descargar
                     actual = self.directorio_actual + self.archivo_descargar
 
-                while (conexion.isdir(objetivo) == True):
+                while (self.conexion.isdir(objetivo) == True):
                     self.archivo_descargar = 'Copia_' + self.archivo_descargar
                     objetivo = "Reciclaje" + '/' + self.archivo_descargar
 
-                while (conexion.isfile(objetivo) == True):
+                while (self.conexion.isfile(objetivo) == True):
                     self.archivo_descargar = 'Copia_' + self.archivo_descargar
                     objetivo = "Reciclaje" + '/' + self.archivo_descargar
 
-                conexion.rename(actual, objetivo)
+                self.conexion.rename(actual, objetivo)
                 self.probarlista()
 
         except:
