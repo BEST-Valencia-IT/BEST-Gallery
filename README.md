@@ -37,3 +37,9 @@ Cuando se instale algún otro paquete de Python (mediante el uso de pip) habrá 
 pip freeze > requirements.txt
 ```
 **IMPORTANTE**: Si se instala algún paquete de Python todos deberán ejecutar también la instalación de dependencias de nuevo.
+
+
+## TODO
+- [ ] Seleccionar carpeta donde descargar los archivos.
+- [ ] Definir la conexion de pysftp como una variable para no tener que crear varias conexiones. También necesario para cnopts.
+- [ ] Quitar sleeps.
