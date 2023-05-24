@@ -41,5 +41,7 @@ pip freeze > requirements.txt
 
 ## TODO
 - [ ] Seleccionar carpeta donde descargar los archivos.
+- [X] Hacer el archivo ejecutable (.exe)
 - [X] Definir la conexion de pysftp como una variable para no tener que crear varias conexiones. También necesario para cnopts.
 - [ ] Quitar sleeps.
+- [ ] Hacer el botón de mover carpetas, archivos
