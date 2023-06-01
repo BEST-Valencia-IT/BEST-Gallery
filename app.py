@@ -1,9 +1,8 @@
-import os
 import sys
 import time
 from tkinter import messagebox
 from tkinter.simpledialog import askstring
-
+from pathlib import Path
 import pysftp
 from PyQt5 import uic, QtCore
 from PyQt5.QtGui import QImage, QIcon
@@ -14,10 +13,16 @@ server_address = 'home500757070.1and1-data.host'
 
 
 class ejemploGUI(QMainWindow):
+    """
+    El directorio por defecto para las descargas es la carpeta DescagasBEST que se crea en la
+    misma carpeta que el ejecutable
+    """
+    download_dir = Path("./DescargasBEST")
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None
     def __init__(self):
         super().__init__()
+        self.download_dir.mkdir(exist_ok=True)
         uic.loadUi("Menu.ui", self)
         self.cancelar.setEnabled(False)
         self.archivos.clicked.connect(self.browsefiles)
@@ -159,12 +164,8 @@ class ejemploGUI(QMainWindow):
         self.label_archivo_elegido.setText('')
         with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
                 """conexion.get_r(self.archivo_descargar,'.')"""
-                if self.directorio_actual != '/':
-                    pordescargar = self.directorio_actual + '/' + self.archivo_descargar
-                    local = os.path.join(os.getcwd(), self.archivo_descargar)
-                else:
-                    pordescargar = self.directorio_actual + self.archivo_descargar
-                    local = os.path.join(os.getcwd(), self.archivo_descargar)
+                pordescargar = self.directorio_actual + '/' + self.archivo_descargar
+                local = Path(f"{self.download_dir}/{self.archivo_descargar}")
 
                 self.conexion.get(pordescargar, local)
                 """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
