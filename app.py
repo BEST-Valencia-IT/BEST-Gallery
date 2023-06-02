@@ -62,7 +62,7 @@ class ejemploGUI(QMainWindow):
             with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
                     self.conexion.put(self.archivo_subir)
                     # conexion.get('mapa1.png')
-                    print(self.conexion.listdir())
+                    # print(self.conexion.listdir())
                     self.cancelar_subida()
                     self.probarlista()
         except:
@@ -193,7 +193,7 @@ class ejemploGUI(QMainWindow):
 
     def abrir_carpeta(self):
         if self.directorio_actual == '/':
-            print(self.archivo_descargar)
+            # print(self.archivo_descargar)
             self.directorio_actual += self.archivo_descargar
         else:
             self.directorio_actual += '/' + self.archivo_descargar
