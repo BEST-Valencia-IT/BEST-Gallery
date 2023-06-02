@@ -1,8 +1,9 @@
 import sys
 import time
+from pathlib import Path
 from tkinter import messagebox
 from tkinter.simpledialog import askstring
-from pathlib import Path
+
 import pysftp
 from PyQt5 import uic, QtCore
 from PyQt5.QtGui import QImage, QIcon
@@ -10,9 +11,10 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QPushButton, QListWidgetItem
 
 server_address = 'home500757070.1and1-data.host'
+VERSION = "v.1.0.0-alpha"
 
 
-class ejemploGUI(QMainWindow):
+class EjemploGUI(QMainWindow):
     """
     El directorio por defecto para las descargas es la carpeta DescagasBEST que se crea en la
     misma carpeta que el ejecutable
@@ -20,8 +22,10 @@ class ejemploGUI(QMainWindow):
     download_dir = Path("./DescargasBEST")
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None
+
     def __init__(self):
         super().__init__()
+        self.label_archivo_elegido = ""
         self.download_dir.mkdir(exist_ok=True)
         uic.loadUi("Menu.ui", self)
         self.cancelar.setEnabled(False)
@@ -52,19 +56,20 @@ class ejemploGUI(QMainWindow):
         self.listWidget.itemDoubleClicked.connect(self.seleccionar_carpeta)
         self.lineEdit_carpeta.setText("Nueva_Carpeta")
         self.lineEdit_carpeta.installEventFilter(self)
-        self.conexion= pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
-                                   cnopts=ejemploGUI.cnopts)
+        self.conexion = pysftp.Connection(server_address, username="u1881262367", password="FreeSpace420",
+                                          cnopts=EjemploGUI.cnopts)
+
     def subida(self):
-        
+
         self.etiqueta2.setText("")
         self.etiqueta.setText("")
         try:
             with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
-                    self.conexion.put(self.archivo_subir)
-                    # conexion.get('mapa1.png')
-                    # print(self.conexion.listdir())
-                    self.cancelar_subida()
-                    self.probarlista()
+                self.conexion.put(self.archivo_subir)
+                # conexion.get('mapa1.png')
+                # print(self.conexion.listdir())
+                self.cancelar_subida()
+                self.probarlista()
         except:
             self.etiqueta2.setText("Ha habido algún error. Asegúrate de pagar el wifi antes de volver a intentarlo.")
 
@@ -77,7 +82,7 @@ class ejemploGUI(QMainWindow):
         self.try_conexion.setEnabled(True)
 
         try:
-                self.etiqueta2.setText("\t\tConexión establecida satisfactoriamente.")
+            self.etiqueta2.setText("\t\tConexión establecida satisfactoriamente.")
         except:
             self.etiqueta2.setText("Ha habido algún error. Asegúrate de pagar el wifi antes de volver a intentarlo.")
 
@@ -87,7 +92,7 @@ class ejemploGUI(QMainWindow):
         time.sleep(1)
         self.try_conexion_2.setEnabled(True)
         try:
-                self.etiqueta2_2.setText("\t\tConexión establecida satisfactoriamente.")
+            self.etiqueta2_2.setText("\t\tConexión establecida satisfactoriamente.")
         except:
             self.etiqueta2_2.setText("Ha habido algún error. Asegúrate de pagar el wifi antes de volver a intentarlo.")
 
@@ -116,35 +121,35 @@ class ejemploGUI(QMainWindow):
             self.etiqueta.setText("No se ha seleccionado ningún archivo.")
 
     def probarlista(self):
-        
+
         self.listWidget.clear()
         try:
-                with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
-                    # conexion.get('mapa1.png')
-                    lista = self.conexion.listdir()
-                    self.archivos_dir = []
-                    self.carpetas_dir = list()
-                    for nombre in lista:
-                        if nombre != 'Reciclaje':
-                            if nombre[-4] != '.':
-                                self.carpetas_dir.append(nombre)
-                            else:
-                                self.archivos_dir.append(nombre)
-                    try:
-                        for i in self.carpetas_dir:
-                            item_carpeta = QListWidgetItem(i)
-                            item_carpeta.setIcon(QIcon("carpeta.png"))
-                            self.listWidget.addItem(item_carpeta)
-                    except:
-                        for i in self.carpetas_dir: self.listWidget.addItem(i)
-                    try:
-                        for i in self.archivos_dir:
-                            item_archivo = QListWidgetItem(i)
-                            item_archivo.setIcon(QIcon("Iconoarchivo.png"))
-                            self.listWidget.addItem(item_archivo)
+            with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
+                # conexion.get('mapa1.png')
+                lista = self.conexion.listdir()
+                self.archivos_dir = []
+                self.carpetas_dir = list()
+                for nombre in lista:
+                    if nombre != 'Reciclaje':
+                        if nombre[-4] != '.':
+                            self.carpetas_dir.append(nombre)
+                        else:
+                            self.archivos_dir.append(nombre)
+                try:
+                    for i in self.carpetas_dir:
+                        item_carpeta = QListWidgetItem(i)
+                        item_carpeta.setIcon(QIcon("carpeta.png"))
+                        self.listWidget.addItem(item_carpeta)
+                except:
+                    for i in self.carpetas_dir: self.listWidget.addItem(i)
+                try:
+                    for i in self.archivos_dir:
+                        item_archivo = QListWidgetItem(i)
+                        item_archivo.setIcon(QIcon("Iconoarchivo.png"))
+                        self.listWidget.addItem(item_archivo)
 
-                    except:
-                        for i in self.archivos_dir: self.listWidget.addItem(i)
+                except:
+                    for i in self.archivos_dir: self.listWidget.addItem(i)
 
 
         except:
@@ -163,15 +168,15 @@ class ejemploGUI(QMainWindow):
     def descargar(self):
         self.label_archivo_elegido.setText('')
         with self.conexion.cd(self.directorio_actual):  # temporarily chdir to public
-                """conexion.get_r(self.archivo_descargar,'.')"""
-                pordescargar = self.directorio_actual + '/' + self.archivo_descargar
-                local = Path(f"{self.download_dir}/{self.archivo_descargar}")
+            """conexion.get_r(self.archivo_descargar,'.')"""
+            pordescargar = self.directorio_actual + '/' + self.archivo_descargar
+            local = Path(f"{self.download_dir}/{self.archivo_descargar}")
 
-                self.conexion.get(pordescargar, local)
-                """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
-                self.bdescarga.setEnabled(False)
-                self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
-                self.archivo_descargar = None
+            self.conexion.get(pordescargar, local)
+            """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
+            self.bdescarga.setEnabled(False)
+            self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
+            self.archivo_descargar = None
 
     def mostrar_imagen(self):
         try:
@@ -231,18 +236,18 @@ class ejemploGUI(QMainWindow):
         self.lineEdit_carpeta.clear()
         if not nombre_carpeta: nombre_carpeta = "Nueva_Carpeta"
         try:
-                if self.directorio_actual != '/':
-                    nueva = self.directorio_actual + '/' + nombre_carpeta
-                else:
-                    nueva = self.directorio_actual + nombre_carpeta
-                if (self.conexion.isdir(nueva) == True):
-                    messagebox.showerror("Error", "Nombre de la carpeta ya en uso")
-                else:
-                    self.conexion.makedirs(nueva)
-                    self.directorio_actual = nueva
-                    self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                    self.probarlista()
-                    self.volver_atras.setEnabled(True)
+            if self.directorio_actual != '/':
+                nueva = self.directorio_actual + '/' + nombre_carpeta
+            else:
+                nueva = self.directorio_actual + nombre_carpeta
+            if (self.conexion.isdir(nueva)):
+                messagebox.showerror("Error", "Nombre de la carpeta ya en uso")
+            else:
+                self.conexion.makedirs(nueva)
+                self.directorio_actual = nueva
+                self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                self.probarlista()
+                self.volver_atras.setEnabled(True)
 
         except:
             messagebox.showerror("Errorcito", "Ni lo has intentado")
@@ -250,15 +255,15 @@ class ejemploGUI(QMainWindow):
     def renombrar(self):
         try:
 
-                nombre_carpeta = askstring('Renombrar', 'Inserta el nuevo nombre')
-                if self.directorio_actual != '/':
-                    nueva = self.directorio_actual + '/' + nombre_carpeta
-                    vieja = self.directorio_actual + '/' + self.archivo_descargar
-                else:
-                    nueva = self.directorio_actual + nombre_carpeta
-                    vieja = self.directorio_actual + self.archivo_descargar
-                self.conexion.rename(vieja, nueva)
-                self.probarlista()
+            nombre_carpeta = askstring('Renombrar', 'Inserta el nuevo nombre')
+            if self.directorio_actual != '/':
+                nueva = self.directorio_actual + '/' + nombre_carpeta
+                vieja = self.directorio_actual + '/' + self.archivo_descargar
+            else:
+                nueva = self.directorio_actual + nombre_carpeta
+                vieja = self.directorio_actual + self.archivo_descargar
+            self.conexion.rename(vieja, nueva)
+            self.probarlista()
 
         except:
             messagebox.showerror("Error", "Algo ha salido mal")
@@ -267,23 +272,23 @@ class ejemploGUI(QMainWindow):
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
         try:
-                if self.directorio_actual != '/':
-                    objetivo = "Reciclaje/" + self.archivo_descargar
-                    actual = self.directorio_actual + '/' + self.archivo_descargar
-                else:
-                    objetivo = "Reciclaje" + self.directorio_actual + self.archivo_descargar
-                    actual = self.directorio_actual + self.archivo_descargar
+            if self.directorio_actual != '/':
+                objetivo = "Reciclaje/" + self.archivo_descargar
+                actual = self.directorio_actual + '/' + self.archivo_descargar
+            else:
+                objetivo = "Reciclaje" + self.directorio_actual + self.archivo_descargar
+                actual = self.directorio_actual + self.archivo_descargar
 
-                while (self.conexion.isdir(objetivo) == True):
-                    self.archivo_descargar = 'Copia_' + self.archivo_descargar
-                    objetivo = "Reciclaje" + '/' + self.archivo_descargar
+            while (self.conexion.isdir(objetivo)):
+                self.archivo_descargar = 'Copia_' + self.archivo_descargar
+                objetivo = "Reciclaje" + '/' + self.archivo_descargar
 
-                while (self.conexion.isfile(objetivo) == True):
-                    self.archivo_descargar = 'Copia_' + self.archivo_descargar
-                    objetivo = "Reciclaje" + '/' + self.archivo_descargar
+            while (self.conexion.isfile(objetivo)):
+                self.archivo_descargar = 'Copia_' + self.archivo_descargar
+                objetivo = "Reciclaje" + '/' + self.archivo_descargar
 
-                self.conexion.rename(actual, objetivo)
-                self.probarlista()
+            self.conexion.rename(actual, objetivo)
+            self.probarlista()
 
         except:
             messagebox.showerror("Error", "Algo ha salido mal")
@@ -297,7 +302,7 @@ class ejemploGUI(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    GUI = ejemploGUI()
+    GUI = EjemploGUI()
     GUI.show()
     GUI.probarlista()
     sys.exit(app.exec_())
