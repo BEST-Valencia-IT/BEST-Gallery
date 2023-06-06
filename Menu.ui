@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,13 +14,17 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>BEST Gallery - 1.2</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>Logo_apli.png</normaloff>Logo_apli.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>10</y>
       <width>1131</width>
       <height>841</height>
@@ -84,7 +91,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Probar Conexión</string>
+       <string>Reestablecer conexión</string>
       </property>
      </widget>
      <widget class="QLabel" name="etiqueta2_2">
@@ -248,7 +255,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Probar Conexión</string>
+       <string>Reestablecer conexión</string>
       </property>
      </widget>
      <widget class="QLabel" name="label">
@@ -331,26 +338,104 @@
        <string/>
       </property>
      </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>90</y>
+        <width>641</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>540</y>
+        <width>341</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Recuerda que debes seleccionar la carpeta en la 
+que quieres subir el archivo  en la pestaña &quot;Descargar&quot;</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Buscar...</string>
+     </attribute>
+     <widget class="QLineEdit" name="lineEdit_filtro">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>110</y>
+        <width>561</width>
+        <height>32</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="Buscar_filtro">
+      <property name="geometry">
+       <rect>
+        <x>820</x>
+        <y>110</y>
+        <width>191</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Buscar</string>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="lista_filtro">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>200</y>
+        <width>581</width>
+        <height>431</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="ir_dir_filtro">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>690</y>
+        <width>271</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Situarse en el directorio/en su directorio</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>50</y>
+        <width>641</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </widget>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1130</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuHOLA">
-    <property name="title">
-     <string>Archivos</string>
-    </property>
-    <addaction name="actionSubir"/>
-    <addaction name="separator"/>
-   </widget>
-   <addaction name="menuHOLA"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSubir">
