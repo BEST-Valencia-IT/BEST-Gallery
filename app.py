@@ -11,7 +11,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QImage, QIcon
 import os
 from stat import S_ISDIR, S_ISREG
-
+ 
 server_address = 'home500757070.1and1-data.host'
 
 class ejemploGUI(QMainWindow):
