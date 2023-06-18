@@ -18,9 +18,9 @@ class ejemploGUI(QMainWindow):
 
     def __init__(self,conex=None):
         super().__init__()
-        print('Init')
         self.conexion=conex
         uic.loadUi("Menu.ui",self)
+        self.setFixedSize(self.size())
         if self.conexion!=None:
             self.iniciar()
         else:
@@ -84,10 +84,10 @@ class ejemploGUI(QMainWindow):
         self.etiqueta2.setText("")
         self.etiqueta.setText("")
         try:
-                with self.conexion.cd(self.directorio_actual):             # temporarily chdir to public
-                    self.conexion.put(self.archivo_subir)
+                with self.conexion.cd(self.directorio_actual):
+                    for i in self.archivo_subir[:-1]:
+                        self.conexion.put(i)
                     #conexion.get('mapa1.png')
-                    print(self.conexion.listdir())
                     self.cancelar_subida()
                     self.probarlista()
                     self.tabWidget.setCurrentIndex(0)
@@ -128,9 +128,11 @@ class ejemploGUI(QMainWindow):
 
 
     def browsefiles(self):
-        fname=QFileDialog.getOpenFileName(self,'Open file', r'C:\Users\Usuario\Desktop', 'PNG files (*.png)')
+        fname=QFileDialog.getOpenFileNames(self,'Open file')
         if fname[0]!='':
-            self.etiqueta.setText(f'Archivo seleccionado\t(Se muestra la ruta completa a continuación.)\n\n{fname[0]}')
+            print(fname[0])
+            a=self.generar_string(fname[0])
+            self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{a}')
             self.archivo_subir=fname[0]
             self.cancelar.setEnabled(True)
             self.archivos.clicked.disconnect(self.browsefiles)
@@ -186,35 +188,41 @@ class ejemploGUI(QMainWindow):
         else: self.babrir_carpeta.setEnabled(False)
 
     def descargar(self):
-         try:
-                self.label_archivo_elegido.setText('')
-                with self.conexion.cd(self.directorio_actual):             # temporarily chdir to public
-                    """conexion.get_r(self.archivo_descargar,'.')"""
-                    print('Establece conexión')
-                    if self.directorio_actual!='/':
-                        pordescargar=self.directorio_actual+'/'+self.archivo_descargar
-                        local=os.path.join(os.getcwd(), self.archivo_descargar)
-                    else:
-                        pordescargar=self.directorio_actual+self.archivo_descargar
-                        local=os.path.join(os.getcwd(), self.archivo_descargar)
-                    self.conexion.get(pordescargar,local)
+        try:
+                directorio_destino = QFileDialog.getExistingDirectory(None, "Seleccionar carpeta de destino")
+                if directorio_destino:
+                    with self.conexion.cd(self.directorio_actual):             # temporarily chdir to public
+                        """conexion.get_r(self.archivo_descargar,'.')"""
+                        print('Establece conexión')
 
-                    """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
-                    self.bdescarga.setEnabled(False)
-                    self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
+                        if self.directorio_actual!='/':
+                            pordescargar=self.directorio_actual+'/'+self.archivo_descargar
 
-                    self.archivo_descargar=None
-         except:
-             self.label_archivo_elegido.setText('Ha habido un fallo al descargar. Una posible razón es que exista un archivo con el mismo nombre (y que ya lo hayas descargado).')
+                        else:
+                            pordescargar=self.directorio_actual+self.archivo_descargar
+                        self.conexion.get(pordescargar,localpath=os.path.join(directorio_destino,self.archivo_descargar))
+                        """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
+                        self.label_archivo_elegido.setText('')
+                        self.bdescarga.setEnabled(False)
+                        self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
+
+                        self.archivo_descargar=None
+        except:
+              self.label_archivo_elegido.setText('Ha habido un fallo al descargar. Una posible razón es que exista un archivo con el mismo nombre (y que ya lo hayas descargado).')
 
     def mostrar_imagen(self):
-        try:
-            imagen_predeterminada = self.archivo_subir
-            image = QImage(imagen_predeterminada)
-            self.prefoto.setPixmap(QPixmap.fromImage(image))
-            self.prefoto.setScaledContents(True)
-        except:
-            self.label_archivo_elegido.setText("No se ha podido previsualizar el archivo.")
+            if len(self.archivo_subir)==1:
+                    imagen_predeterminada = self.archivo_subir[0]
+                    image = QImage(imagen_predeterminada)
+                    self.prefoto.setPixmap(QPixmap.fromImage(image))
+                    self.prefoto.setScaledContents(True)
+            else:
+                for imagen in self.archivo_subir:
+                        imagen_predeterminada = imagen
+                        image = QImage(imagen_predeterminada)
+                        if image.isNull() is False:
+                            self.prefoto.setPixmap(QPixmap.fromImage(image))
+                            self.prefoto.setScaledContents(True)
 
     def mostrar_logo_best(self,objeto):
         try:
@@ -271,7 +279,7 @@ class ejemploGUI(QMainWindow):
                 if self.directorio_actual!='/': nueva=self.directorio_actual+'/'+nombre_carpeta
                 else:nueva=self.directorio_actual+nombre_carpeta
                 if(self.conexion.isdir(nueva)==True):
-                    messagebox.showerror("Error", "Nombre de la carpeta ya en uso")
+                    messagebox.showerror("Error", "Nombre de la carpeta ya en uso aquí")
                 else:
                     self.conexion.makedirs(nueva)
                     self.directorio_actual=nueva
@@ -297,10 +305,11 @@ class ejemploGUI(QMainWindow):
                     vieja=self.directorio_actual+self.archivo_descargar
                 self.conexion.rename(vieja,nueva)
                 self.probarlista()
-
-
+                self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
         except:
-            messagebox.showerror("Error","Algo ha salido mal")
+            messagebox.showerror("Error","Nombre de la carpeta ya en uso aquí")
 
     def mover_reciclaje(self):
         try:
@@ -392,6 +401,25 @@ class ejemploGUI(QMainWindow):
     def seleccionar_filtro(self, item):
          self.archivo_filtrar=item.text()
          print(self.archivo_filtrar)
+
+    def generar_string(self,fname):
+        if len(fname)==1:
+            ruta=f"{self.dir_padre(fname[0])}\n\n"
+            indice_barra = fname[0].rfind("/")
+            return f"{ruta}\t{fname[0][indice_barra+1:]}"
+        elif len(fname)>=3:
+            ruta=f"{self.dir_padre(fname[0])}\n\n"
+            indice_barra = fname[0].rfind("/")
+            for i in range(0,3):
+                    ruta+=f"\t{fname[i][indice_barra+1:]}"
+            ruta+="\n\t\t..."
+        else:
+            ruta=f"{self.dir_padre(fname[0])}\n\n"
+            indice_barra = fname[0].rfind("/")
+            for i in fname:
+                ruta+=f"\t{i[indice_barra+1:]}"
+        return ruta
+
 
 if __name__=='__main__':
     try:
