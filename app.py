@@ -189,8 +189,19 @@ class ejemploGUI(QMainWindow):
 
     def descargar(self):
         try:
-                directorio_destino = QFileDialog.getExistingDirectory(None, "Seleccionar carpeta de destino")
-                if directorio_destino:
+            directorio_destino = QFileDialog.getExistingDirectory(None, "Seleccionar carpeta de destino")
+            print(directorio_destino)
+            if directorio_destino:
+                if conexion.isdir(self.archivo_descargar):
+                    pordescargar=self.directorio_actual+self.archivo_descargar
+                    ruta_local= os.path.join(directorio_destino,self.archivo_descargar)
+                    ruta_local=ruta_local.replace("/","\\")
+                    self.conexion.get_r(pordescargar,directorio_destino)
+                    self.label_archivo_elegido.setText('')
+                    self.bdescarga.setEnabled(False)
+                    self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
+                    self.archivo_descargar=None
+                else:
                     with self.conexion.cd(self.directorio_actual):             # temporarily chdir to public
                         """conexion.get_r(self.archivo_descargar,'.')"""
                         print('Establece conexión')
@@ -208,7 +219,7 @@ class ejemploGUI(QMainWindow):
 
                         self.archivo_descargar=None
         except:
-              self.label_archivo_elegido.setText('Ha habido un fallo al descargar. Una posible razón es que exista un archivo con el mismo nombre (y que ya lo hayas descargado).')
+               self.label_archivo_elegido.setText('Ha habido un fallo al descargar. Una posible razón es que exista un archivo con el mismo nombre (y que ya lo hayas descargado).')
 
     def mostrar_imagen(self):
             if len(self.archivo_subir)==1:
