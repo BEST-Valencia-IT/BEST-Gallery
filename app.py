@@ -12,8 +12,6 @@ from PyQt5.QtGui import QImage, QIcon
 import os
 from stat import S_ISDIR, S_ISREG
  
-server_address = 'home500757070.1and1-data.host'
-
 class ejemploGUI(QMainWindow):
 
     def __init__(self,conex=None):
@@ -101,7 +99,6 @@ class ejemploGUI(QMainWindow):
                 conexion= pysftp.Connection(server_address,username ="u1881262367",password="FreeSpace420",cnopts=cnopts)
                 self.conexion=conexion
                 self.iniciar()
-
         except:
             self.etiqueta2.setText("Ha habido algún error. Asegúrate de pagar el wifi antes de volver a intentarlo.")
 
@@ -130,7 +127,6 @@ class ejemploGUI(QMainWindow):
     def browsefiles(self):
         fname=QFileDialog.getOpenFileNames(self,'Open file')
         if fname[0]!='':
-            print(fname[0])
             a=self.generar_string(fname[0])
             self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{a}')
             self.archivo_subir=fname[0]
@@ -143,14 +139,10 @@ class ejemploGUI(QMainWindow):
             self.etiqueta.setText("No se ha seleccionado ningún archivo.")
 
     def probarlista(self):
-        print('Probar lista')
         self.listWidget.clear()
         try:
-                with self.conexion.cd(self.directorio_actual):             # temporarily chdir to public
-                    print('Pasa el try de probar lista')
-                    #conexion.get('mapa1.png')
+                with self.conexion.cd(self.directorio_actual):
                     lista=self.conexion.listdir()
-                    print(lista)
                     self.archivos_dir=[]
                     self.carpetas_dir=list()
                     for nombre in lista:
@@ -190,7 +182,6 @@ class ejemploGUI(QMainWindow):
     def descargar(self):
         try:
             directorio_destino = QFileDialog.getExistingDirectory(None, "Seleccionar carpeta de destino")
-            print(directorio_destino)
             if directorio_destino:
                 if conexion.isdir(self.archivo_descargar):
                     pordescargar=self.directorio_actual+self.archivo_descargar
@@ -202,21 +193,15 @@ class ejemploGUI(QMainWindow):
                     self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
                     self.archivo_descargar=None
                 else:
-                    with self.conexion.cd(self.directorio_actual):             # temporarily chdir to public
-                        """conexion.get_r(self.archivo_descargar,'.')"""
-                        print('Establece conexión')
-
+                    with self.conexion.cd(self.directorio_actual):
                         if self.directorio_actual!='/':
                             pordescargar=self.directorio_actual+'/'+self.archivo_descargar
-
                         else:
                             pordescargar=self.directorio_actual+self.archivo_descargar
                         self.conexion.get(pordescargar,localpath=os.path.join(directorio_destino,self.archivo_descargar))
-                        """messagebox.showerror("Error",f"Actual: {pordescargar} Objetivo:{local}")"""
                         self.label_archivo_elegido.setText('')
                         self.bdescarga.setEnabled(False)
                         self.label_archivo_elegido.setText(f'DESCARGADO: {self.archivo_descargar}')
-
                         self.archivo_descargar=None
         except:
                self.label_archivo_elegido.setText('Ha habido un fallo al descargar. Una posible razón es que exista un archivo con el mismo nombre (y que ya lo hayas descargado).')
@@ -245,7 +230,6 @@ class ejemploGUI(QMainWindow):
 
     def abrir_carpeta(self):
             if self.directorio_actual=='/':
-                print(self.archivo_descargar)
                 self.directorio_actual+=self.archivo_descargar
             else:
                 self.directorio_actual+='/'+self.archivo_descargar
@@ -270,7 +254,6 @@ class ejemploGUI(QMainWindow):
         if self.directorio_actual=='/':
             self.volver_atras.setEnabled(False)
         self.label_archivo_elegido.setText('')
-
         self.probarlista()
         self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
         self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
@@ -299,13 +282,11 @@ class ejemploGUI(QMainWindow):
                     self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
                     self.probarlista()
                     self.volver_atras.setEnabled(True)
-
         except:
             messagebox.showerror("Errorcito", "Ni lo has intentado")
 
     def renombrar(self):
         try:
-
             nombre_carpeta = askstring('Renombrar', 'Inserta el nuevo nombre')
             if nombre_carpeta is not None and nombre_carpeta!='':
                 if self.directorio_actual!='/':
@@ -344,7 +325,6 @@ class ejemploGUI(QMainWindow):
         except:
             messagebox.showerror("Error","Algo ha salido mal")
 
-
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.KeyPress and obj is self.lineEdit_carpeta:
             if event.key() == QtCore.Qt.Key_Return and self.lineEdit_carpeta.hasFocus():
@@ -382,7 +362,7 @@ class ejemploGUI(QMainWindow):
                     except:
                         for i in self.archivos_dir: self.lista_filtro.addItem(i)
                     self.ir_dir_filtro.setEnabled(True)
-                except: print('Ha habido un error, probablemente de conexión')
+                except: pass
 
     def añadir_fwalktree(self,filename): self.lista_rutas.append(filename)
     def añadir_dirwalktree(self,dirname): self.lista_rutas.append(dirname)
@@ -390,7 +370,6 @@ class ejemploGUI(QMainWindow):
 
     def abrir_carpeta_filtro(self):
         destino=self.archivo_filtrar
-        print(destino)
         try:
             if conexion.isdir(destino)==True:
                 self.directorio_actual=destino
@@ -407,11 +386,10 @@ class ejemploGUI(QMainWindow):
             self.lineEdit_filtro.clear()
             self.lista_filtro.clear()
             self.tabWidget.setCurrentIndex(0)
-        except: print('Ha habido un error')
+        except:pass
 
     def seleccionar_filtro(self, item):
          self.archivo_filtrar=item.text()
-         print(self.archivo_filtrar)
 
     def generar_string(self,fname):
         if len(fname)==1:
@@ -431,8 +409,8 @@ class ejemploGUI(QMainWindow):
                 ruta+=f"\t{i[indice_barra+1:]}"
         return ruta
 
-
 if __name__=='__main__':
+    server_address = 'home500757070.1and1-data.host'
     try:
         cnopts=pysftp.CnOpts()
         cnopts.hostkeys=None
