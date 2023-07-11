@@ -23,11 +23,11 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>BEST Gallery - 3.2</string>
+   <string>BEST Gallery - 3.5</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>Logo_apli.png</normaloff>Logo_apli.png</iconset>
+    <normaloff>../../../../../../../../home/pablopc2/.designer/backup/Logo_apli.png</normaloff>../../../../../../../../home/pablopc2/.designer/backup/Logo_apli.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -215,17 +215,17 @@
      <widget class="QPushButton" name="archivos">
       <property name="geometry">
        <rect>
-        <x>900</x>
-        <y>660</y>
-        <width>181</width>
-        <height>91</height>
+        <x>650</x>
+        <y>670</y>
+        <width>151</width>
+        <height>71</height>
        </rect>
       </property>
       <property name="contextMenuPolicy">
        <enum>Qt::DefaultContextMenu</enum>
       </property>
       <property name="text">
-       <string>Examinar</string>
+       <string>Examinar archivos</string>
       </property>
       <property name="autoRepeatInterval">
        <number>100</number>
@@ -234,9 +234,9 @@
      <widget class="QPushButton" name="cancelar">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>60</x>
         <y>660</y>
-        <width>331</width>
+        <width>221</width>
         <height>91</height>
        </rect>
       </property>
@@ -247,7 +247,7 @@
      <widget class="QPushButton" name="try_conexion">
       <property name="geometry">
        <rect>
-        <x>510</x>
+        <x>380</x>
         <y>680</y>
         <width>171</width>
         <height>51</height>
@@ -352,6 +352,25 @@
       <property name="text">
        <string>Recuerda que debes seleccionar la carpeta en la 
 que quieres subir el archivo  en la pestaña &quot;Descargar&quot;</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="subir_carpetas">
+      <property name="geometry">
+       <rect>
+        <x>900</x>
+        <y>670</y>
+        <width>151</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <property name="text">
+       <string>Examinar carpetas</string>
+      </property>
+      <property name="autoRepeatInterval">
+       <number>100</number>
       </property>
      </widget>
     </widget>

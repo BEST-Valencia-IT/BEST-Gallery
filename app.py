@@ -54,7 +54,6 @@ class ejemploGUI(QMainWindow):
             self.cancelar.clicked.connect(self.cancelar_subida)
             self.try_conexion.clicked.connect(self.probar_conex)
             self.archivo_subir=None
-            self.archivos.setText("Examinar")
             self.joseluis = QPushButton("PyQt5 button") # Esto es TOTAL y ABSOLUTAMENTE necesario.
             self.listWidget.itemClicked.connect(self.seleccionar)
             self.bdescarga.clicked.connect(self.descargar)
@@ -89,6 +88,7 @@ class ejemploGUI(QMainWindow):
             self.ir_dir_filtro.clicked.connect(self.abrir_carpeta_filtro)
             self.Buscar_filtro.clicked.connect(self.filtrar)
             self.lista_filtro.itemClicked.connect(self.seleccionar_filtro)
+            self.subir_carpetas.clicked.connect(self.browsefolders)
 
  # Inicar es algo complicado, ya que se deben unir todos los botones a sus respectivas funciones, fijar el estado de los mismos y darle a las etiquetas strings por defecto
  # Muchas variables se mantienen como atributos de clase por su posible utilidad en un futuro, pero pueden ser modificados y utilizados como simples parámetros y simplificar el constructor y el programa
@@ -111,13 +111,42 @@ class ejemploGUI(QMainWindow):
                         self.conexion.put(i)
                     self.cancelar_subida()
                     self.probarlista()
-                    self.tabWidget.setCurrentIndex(0)
                     messagebox.showinfo("Subida finalizada", "Archivo(s) subido(s) correctamente")
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showerror("Error","No se ha podido subir la selección al servidor")
             self.recoger_error(f"{e} self.subida  {self.version}")
 
+    def subida_carpeta(self):
+        indice=self.archivo_subir.rfind("/")
+        nombre_carpeta=self.archivo_subir[indice:]
+        self.conexion.makedirs(nombre_carpeta)
+        if self.directorio_actual=='/':
+                self.directorio_actual+=nombre_carpeta
+        else:
+                self.directorio_actual+='/'+nombre_carpeta
+        try:
+            for root, dirs, files in os.walk(self.archivo_subir):
+                # Crear las carpetas remotas si no existen
+                for dir in dirs:
+                    remote_dir = os.path.join(self.directorio_actual, os.path.relpath(os.path.join(root, dir), self.archivo_subir))
+                    remote_dir=remote_dir.replace("\\","/")
+                    self.conexion.makedirs(remote_dir)
+
+                # Subir los archivos al directorio remoto
+                for file in files:
+                    local_file = os.path.join(root, file)
+                    remote_file = os.path.join(self.directorio_actual, os.path.relpath(local_file, self.archivo_subir))
+                    remote_file=remote_file.replace("\\","/")
+                    self.conexion.put(local_file, remote_file)
+            self.carpeta_anterior()
+            self.probarlista()
+            messagebox.showinfo("Subida finalizada","La carpeta se ha subido correctamente")
+            self.cancelar_subida()
+        except Exception as e:
+            # Si salta error, se avisa al usuario y se manda un log al servidor.
+            messagebox.showerror("Error","No se ha podido subir la carpeta al servidor")
+            self.recoger_error(f"{e} self.subida  {self.version}")
  # Estas dos funciones permiten reestablecer la conexión. Tanto si se ha inicializado si la misma, se ha perdido durante la ejecución o simplemente ha saltado error y quieres asegurarte de que todo funciona,
  # en descargar y en subir tienes la posibilidad de hacerlo. Cada función corresponde a una pestaña (¡Ojo! Están al revés, sería tan sencillo como cambiar un número al ligar los botones pero bueno ahi está)
 
@@ -152,10 +181,24 @@ class ejemploGUI(QMainWindow):
     def cancelar_subida(self):
         self.cancelar.setEnabled(False)
         self.archivos.setEnabled(True)
+        self.subir_carpetas.setEnabled(True)
         self.archivo_subir=None
+        try:
+            self.archivos.clicked.disconnect(self.browsefiles)
+        except:pass
+        try:
+            self.archivos.clicked.disconnect(self.subida)
+        except:pass
+        try:
+            self.subir_carpetas.clicked.disconnect(self.browsefolders)
+        except:pass
+        try:
+            self.subir_carpetas.clicked.disconnect(self.subida_carpeta)
+        except: pass
         self.archivos.clicked.connect(self.browsefiles)
-        self.archivos.clicked.disconnect(self.subida)
-        self.archivos.setText("Examinar")
+        self.subir_carpetas.clicked.connect(self.browsefolders)
+        self.archivos.setText("Examinar archivo(s)")
+        self.subir_carpetas.setText("Examinar carpeta")
         self.prefoto.clear()
         self.etiqueta.setText("")
 
@@ -174,6 +217,7 @@ class ejemploGUI(QMainWindow):
                 self.archivos.clicked.disconnect(self.browsefiles)
                 self.archivos.clicked.connect(self.subida)
                 self.archivos.setText("Subir archivo")
+                self.subir_carpetas.setEnabled(False)
                 self.mostrar_imagen()
             else:
                 self.etiqueta.setText("No se ha seleccionado ningún archivo.")
@@ -181,7 +225,22 @@ class ejemploGUI(QMainWindow):
             # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado, no lo trataremos como un error.
             self.etiqueta.setText("No se ha seleccionado ningún archivo.")
 
-
+    def  browsefolders(self):
+        try:
+            fname = QFileDialog.getExistingDirectory(self, 'Open folder')
+            if fname != '' or len(fname) != 0:
+                self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{fname}')
+                self.archivo_subir = fname
+                self.cancelar.setEnabled(True)
+                self.archivos.setEnabled(False)
+                self.subir_carpetas.clicked.disconnect(self.browsefolders)
+                self.subir_carpetas.clicked.connect(self.subida_carpeta)
+                self.subir_carpetas.setText("Subir carpeta")
+            else:
+                self.etiqueta.setText("No se ha seleccionado ninguna carpeta.")
+        except IndexError:
+            # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado, no lo trataremos como un error.
+            self.etiqueta.setText("No se ha seleccionado ninguna carpeta.")
  # Esra es de las funciones más importantes. Este método accede a la lista de la pestaña "Descargar" y añade los elementos que están en el servidor.
 
     def probarlista(self):
