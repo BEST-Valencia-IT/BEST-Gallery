@@ -241,7 +241,7 @@ class ejemploGUI(QMainWindow):
         except IndexError:
             # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado, no lo trataremos como un error.
             self.etiqueta.setText("No se ha seleccionado ninguna carpeta.")
- # Esra es de las funciones más importantes. Este método accede a la lista de la pestaña "Descargar" y añade los elementos que están en el servidor.
+ # Esta es de las funciones más importantes. Este método accede a la lista de la pestaña "Descargar" y añade los elementos que están en el servidor.
 
     def probarlista(self):
         self.listWidget.clear()
@@ -411,24 +411,25 @@ class ejemploGUI(QMainWindow):
 
     def crear_carpeta(self):
         nombre_carpeta=askstring(" ","¿Cuál es el nombre de la carpeta?")
-        if not nombre_carpeta: nombre_carpeta="Nueva Carpeta"
-        try:
-                if self.directorio_actual!='/': nueva=self.directorio_actual+'/'+nombre_carpeta
-                else: nueva=self.directorio_actual+nombre_carpeta
-                if(self.conexion.isdir(nueva)==True):
-                    messagebox.showwarning("Error", "Nombre de la carpeta ya en uso aquí")
-                else:
-                    self.conexion.makedirs(nueva)
-                    self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                    self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                    self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                    messagebox.showinfo("Finalizado","Carpeta creada correctamente")
-                    self.probarlista()
-                    self.volver_atras.setEnabled(True)
-        except Exception as e:
-            # Si salta error, se avisa al usuario y se manda un log al servidor.
-            messagebox.showerror("Error", "No se ha podido crear la carpeta")
-            self.recoger_error(f"{e} self.crear_carpeta  {self.version}")
+        if nombre_carpeta=="": nombre_carpeta="Nueva Carpeta"
+        if nombre_carpeta:
+            try:
+                    if self.directorio_actual!='/': nueva=self.directorio_actual+'/'+nombre_carpeta
+                    else: nueva=self.directorio_actual+nombre_carpeta
+                    if(self.conexion.isdir(nueva)==True):
+                        messagebox.showwarning("Error", "Nombre de la carpeta ya en uso aquí")
+                    else:
+                        self.conexion.makedirs(nueva)
+                        self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                        self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                        self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                        messagebox.showinfo("Finalizado","Carpeta creada correctamente")
+                        self.probarlista()
+                        self.volver_atras.setEnabled(True)
+            except Exception as e:
+                # Si salta error, se avisa al usuario y se manda un log al servidor.
+                messagebox.showerror("Error", "No se ha podido crear la carpeta")
+                self.recoger_error(f"{e} self.crear_carpeta  {self.version}")
 
  # Permite renombrar una carpeta o archivo y comprueba si está o no en la raíz para crear
  # la ruta de manera adecuada y procede a llamar al servidor para cumplir el objetivo. Se reajusta la interfaz. No se permiten nombre iguales
