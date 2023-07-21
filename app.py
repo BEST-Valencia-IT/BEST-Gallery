@@ -29,7 +29,8 @@ class ejemploGUI(QMainWindow):
         self.setFixedSize(self.size())
 
  # Este constructor está pensado para que reciba la conexión del servidor como un parámetro. Si este no estuviera, la aplicación puede iniciarse igualmente, pero su inicio por defecto
- # será vacío, de ahí que todo esté "seteado" a False.
+ # será vacío, de ahí que todo esté "seteado" a False. Esta primera parte del constructor hereda los elementos correspondientes de la
+ # interfaz (ni zorra pero tiene que estar),y contiene la versión también (que suele y debería estar actualizada)
 
         if self.conexion!=None:
             self.iniciar()
@@ -44,8 +45,13 @@ class ejemploGUI(QMainWindow):
             self.archivos.setEnabled(False)
             self.try_conexion.clicked.connect(self.probar_conex)
             self.try_conexion_2.clicked.connect(self.probar_conex2)
+            self.subir_carpetas.setEnabled(False)
+            self.ir_dir_filtro.setEnabled(False)
+            self.Buscar_filtro.setEnabled(False)
+            self.subir_carpetas.setEnabled(False)
 
-# Sin embargo, si recibe una conexión funcional, se activará inicar, que inicializa toda la aplicación, siendo el verdadero constructor aunque se aparte a una función.
+# Sin embargo, si recibe una conexión funcional, se activará inicar, que inicializa toda la aplicación, siendo el verdadero 
+# constructor aunque se aparte a una función.
 
     def iniciar(self):
             self.b_cambiarnom.setEnabled(False)
@@ -89,66 +95,90 @@ class ejemploGUI(QMainWindow):
             self.Buscar_filtro.clicked.connect(self.filtrar)
             self.lista_filtro.itemClicked.connect(self.seleccionar_filtro)
             self.subir_carpetas.clicked.connect(self.browsefolders)
+            self.Buscar_filtro.setEnabled(True)
+            self.subir_carpetas.setEnabled(True)
+            self.ir_dir_filtro.setEnabled(True)
+            self.brecilaje.setEnabled(False)
 
- # Inicar es algo complicado, ya que se deben unir todos los botones a sus respectivas funciones, fijar el estado de los mismos y darle a las etiquetas strings por defecto
- # Muchas variables se mantienen como atributos de clase por su posible utilidad en un futuro, pero pueden ser modificados y utilizados como simples parámetros y simplificar el constructor y el programa
+ # Inicar es algo complicado, ya que se deben unir todos los botones a sus respectivas funciones, fijar el estado de los 
+ # mismos y darle a las etiquetas strings por defecto Muchas variables se mantienen como atributos de clase por su posible utilidad 
+ # en un futuro, pero pueden ser modificados y utilizados como simples parámetros y simplificar el constructor y el programa
+
  # La carpeta "Reciclaje" es la papelera y adonde se envían los archivos para ser borrados. Se mantiene oculta para el usuario.
 
- # Está ligeramente (bastante (jesús es demasiado)) desordenado, pues se ha ido añadiendo todo a lo largo de la escritura del programa. Si sigue este comentario, es que no se ha arreglado (srry)
+ # Está ligeramente (bastante (jesús, es demasiado)) desordenado, pues se ha ido añadiendo todo a lo largo de la escritura del programa. 
+ # Si sigue este comentario, es que no se ha arreglado (srry)
 
 
- # Esta función será la que permita subir los archivos al servidor. Esta función utiliza self.archivo_subir que es una variable que tiene los archivos con los que actuar en esta función.
+ # Esta función será la que permita subir los archivos al servidor. Esta función utiliza self.archivo_subir que es una variable que 
+ # tiene los archivos con los que actuar en esta función.
  # Tras recorrer la lista de subidas, las sube sin más y te devuelve a la pantalla principal, donde teóricamente querrás verlo.
- # Debes elegir en la sección descargar el directorio donde quieres subir los archivos. Es algo un poco ortopédico, pero hasta que no materialicemos ciertas ideas (o sugerencias) se funcionará así.
+ # Debes elegir en la sección descargar el directorio donde quieres subir los archivos.  Es algo un poco ortopédico, pero hasta que 
+ # no materialicemos ciertas ideas (o sugerencias) funcionará así.
 
     def subida(self):
+    # se ponen las opciones estas para la conexión
         cnopts=pysftp.CnOpts()
         cnopts.hostkeys=None
         self.etiqueta.setText("")
         try:
-                with self.conexion.cd(self.directorio_actual):
+                with self.conexion.cd(self.directorio_actual): #con el directorio elegido abierto
                     for i in self.archivo_subir:
+                        # self.archivo_subir es una lista de rutas, puede haber una o varias. Recorre y las sube
                         self.conexion.put(i)
-                    self.cancelar_subida()
-                    self.probarlista()
+                    self.cancelar_subida() # resetea la interfaz
+                    self.probarlista() # volvemos a listar el directorio
                     messagebox.showinfo("Subida finalizada", "Archivo(s) subido(s) correctamente")
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showerror("Error","No se ha podido subir la selección al servidor")
             self.recoger_error(f"{e} self.subida  {self.version}")
 
+  # hay que darles un trato especial a las carpetas de cara a subirlas. 
+
     def subida_carpeta(self):
         indice=self.archivo_subir.rfind("/")
-        nombre_carpeta=self.archivo_subir[indice:]
+        nombre_carpeta=self.archivo_subir[indice:] # recoges el nombre de la carpeta
         self.conexion.makedirs(nombre_carpeta)
+        # para poder agregar la (nueva) ruta, necesitas este condicional según sea la root u otra carpeta
         if self.directorio_actual=='/':
                 self.directorio_actual+=nombre_carpeta
         else:
                 self.directorio_actual+='/'+nombre_carpeta
         try:
+            # usamos el os para poder recoger las rutas de los archivos de las carpetas. El walk es recursivo y va entrando en las
+            # diferentes carpetas, así que todo bien
+            # sí, usé Chatgpt, problem?
             for root, dirs, files in os.walk(self.archivo_subir):
-                # Crear las carpetas remotas si no existen
                 for dir in dirs:
+                    # recoge el nombre de manera algo perezosa pero así tiene que ser 
                     remote_dir = os.path.join(self.directorio_actual, os.path.relpath(os.path.join(root, dir), self.archivo_subir))
-                    remote_dir=remote_dir.replace("\\","/")
-                    self.conexion.makedirs(remote_dir)
+                    remote_dir=remote_dir.replace("\\","/") # lo sustituye por si acaso fuera windows (bruh)
+                    self.conexion.makedirs(remote_dir) # crea ese directorio si no existe
 
-                # Subir los archivos al directorio remoto
+                
                 for file in files:
                     local_file = os.path.join(root, file)
                     remote_file = os.path.join(self.directorio_actual, os.path.relpath(local_file, self.archivo_subir))
+                    # recogemos la ruta para poder subir los archivos igual que antes
                     remote_file=remote_file.replace("\\","/")
-                    self.conexion.put(local_file, remote_file)
-            self.carpeta_anterior()
+                    self.conexion.put(local_file, remote_file) # lo sube sin más
+            self.carpeta_anterior() # no recuerdo por qué está pero bueno algún sentido tendrá
             self.probarlista()
+            # resetea todo 
             messagebox.showinfo("Subida finalizada","La carpeta se ha subido correctamente")
             self.cancelar_subida()
         except Exception as e:
+            print(e)
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showerror("Error","No se ha podido subir la carpeta al servidor")
             self.recoger_error(f"{e} self.subida  {self.version}")
- # Estas dos funciones permiten reestablecer la conexión. Tanto si se ha inicializado si la misma, se ha perdido durante la ejecución o simplemente ha saltado error y quieres asegurarte de que todo funciona,
- # en descargar y en subir tienes la posibilidad de hacerlo. Cada función corresponde a una pestaña (¡Ojo! Están al revés, sería tan sencillo como cambiar un número al ligar los botones pero bueno ahi está)
+
+
+ # Estas dos funciones permiten reestablecer la conexión. Tanto si se ha inicializado si la misma, se ha perdido durante la ejecución
+ # o simplemente ha saltado error y quieres asegurarte de que todo funciona, en descargar y en subir tienes la posibilidad de hacerlo. 
+ # Cada función corresponde a una pestaña (¡Ojo! Están al revés, sería tan sencillo como cambiar un número al ligar los botones
+ # pero bueno ahí está)
 
     def probar_conex(self):
         cnopts=pysftp.CnOpts()
@@ -157,6 +187,7 @@ class ejemploGUI(QMainWindow):
                 conexion= pysftp.Connection(server_address,username ="u1881262367",password="FreeSpace420",cnopts=cnopts)
                 self.conexion=conexion
                 messagebox.showinfo("Finalizado", "Conexión reestablecida")
+                # Establece conexión e inica la aplicación bien
                 self.iniciar()
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
@@ -176,13 +207,16 @@ class ejemploGUI(QMainWindow):
             messagebox.showerror("Error de conexión", "Asegúrate de pagar el wifi antes de volver a intentarlo")
             self.recoger_error(f"{e} self.probarconex2  {self.version}")
 
- # Si se anula la subida, se fija lo necesario a False y se anulan la variable a la que estaba ligada (self.archivo_subir) y al botón de la derecha se le devuelve la función de "examinar"
+
+ # Si se anula la subida, se fija lo necesario a False y se anulan la variable a la que estaba ligada (self.archivo_subir) y al 
+ # botón de la derecha se le devuelve la función de "examinar"
 
     def cancelar_subida(self):
         self.cancelar.setEnabled(False)
         self.archivos.setEnabled(True)
         self.subir_carpetas.setEnabled(True)
         self.archivo_subir=None
+        # Vale, esto es un coñazo. Para poder desconectar todo, hay que ir probando
         try:
             self.archivos.clicked.disconnect(self.browsefiles)
         except:pass
@@ -195,6 +229,7 @@ class ejemploGUI(QMainWindow):
         try:
             self.subir_carpetas.clicked.disconnect(self.subida_carpeta)
         except: pass
+        # Con todo desconectado, recuperas los botones y los logos (aprovechamos su ausencia para remarcar que algo estaba mal)
         self.archivos.clicked.connect(self.browsefiles)
         self.subir_carpetas.clicked.connect(self.browsefolders)
         self.archivos.setText("Examinar archivo(s)")
@@ -208,8 +243,8 @@ class ejemploGUI(QMainWindow):
 
     def browsefiles(self):
         try:
-            fname = QFileDialog.getOpenFileNames(self, 'Open file')
-            if fname[0] != '' or len(fname[0]) != 0:
+            fname = QFileDialog.getOpenFileNames(self, 'Open file') # Buscas el nombre de los archivos
+            if fname[0] != '' or len(fname[0]) != 0: # si no está vacía la lista que devuelve, se configuran las etiquetas y botones
                 a = self.generar_string(fname[0])
                 self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{a}')
                 self.archivo_subir = fname[0]
@@ -227,7 +262,7 @@ class ejemploGUI(QMainWindow):
 
     def  browsefolders(self):
         try:
-            fname = QFileDialog.getExistingDirectory(self, 'Open folder')
+            fname = QFileDialog.getExistingDirectory(self, 'Open folder') # Recoges el directorio y repites como self.browsefiles()
             if fname != '' or len(fname) != 0:
                 self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{fname}')
                 self.archivo_subir = fname
@@ -272,6 +307,7 @@ class ejemploGUI(QMainWindow):
                             self.listWidget.addItem(item_archivo)
                     except:
                         for i in self.archivos_dir: self.listWidget.addItem(i)
+                    self.brecilaje.setEnabled(False)
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             # También se fijan estos mensajes en las etiquetas para advertir de la gravedad del error.
@@ -289,6 +325,7 @@ class ejemploGUI(QMainWindow):
         self.archivo_descargar=lstItem.text()
         self.bdescarga.setEnabled(True)
         self.b_cambiarnom.setEnabled(True)
+        self.brecilaje.setEnabled(True)
         if self.archivo_descargar in self.carpetas_dir:
             self.babrir_carpeta.setEnabled(True)
         else: self.babrir_carpeta.setEnabled(False)
@@ -369,6 +406,7 @@ class ejemploGUI(QMainWindow):
             self.babrir_carpeta.setEnabled(False)
             self.volver_atras.setEnabled(True)
             self.label_archivo_elegido.setText('')
+            self.brecilaje.setEnabled(False)
             self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
             self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
             self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
@@ -489,7 +527,7 @@ class ejemploGUI(QMainWindow):
 
     def recoger_error(self, error):
             current_datetime = datetime.datetime.now()
-            date_time_string = current_datetime.strftime('%Y-%m-%d_%H-%M-%S')
+            date_time_string = current_datetime.strftime('%Y-%m-%d_%H:%M')
             log_filename = f'registro_errores_{date_time_string}.txt'
             try:
                 with conexion.open(f"/Reciclaje/{log_filename}","a") as file:
