@@ -23,11 +23,11 @@ class ejemploGUI(QMainWindow):
 
     def __init__(self,conex=None):
         super().__init__()
-        self.version=3.2
+        self.version=3.7
         self.conexion=conex
         uic.loadUi("Menu.ui",self)
         self.setFixedSize(self.size())
-
+        
  # Este constructor está pensado para que reciba la conexión del servidor como un parámetro. Si este no estuviera, la aplicación puede iniciarse igualmente, pero su inicio por defecto
  # será vacío, de ahí que todo esté "seteado" a False. Esta primera parte del constructor hereda los elementos correspondientes de la
  # interfaz (ni zorra pero tiene que estar),y contiene la versión también (que suele y debería estar actualizada)
@@ -97,14 +97,15 @@ class ejemploGUI(QMainWindow):
             self.subir_carpetas.clicked.connect(self.browsefolders)
             self.Buscar_filtro.setEnabled(True)
             self.subir_carpetas.setEnabled(True)
-            self.ir_dir_filtro.setEnabled(True)
+            self.ir_dir_filtro.setEnabled(False)
             self.brecilaje.setEnabled(False)
 
  # Inicar es algo complicado, ya que se deben unir todos los botones a sus respectivas funciones, fijar el estado de los 
  # mismos y darle a las etiquetas strings por defecto Muchas variables se mantienen como atributos de clase por su posible utilidad 
  # en un futuro, pero pueden ser modificados y utilizados como simples parámetros y simplificar el constructor y el programa
 
- # La carpeta "Reciclaje" es la papelera y adonde se envían los archivos para ser borrados. Se mantiene oculta para el usuario.
+ # La carpeta "Reciclaje" es la papelera y adonde se envían los archivos en vez de ser borrados. Se mantiene oculta para el usuario
+ # (si les damos la verdadera opción de borrar, luego nos lloran)
 
  # Está ligeramente (bastante (jesús, es demasiado)) desordenado, pues se ha ido añadiendo todo a lo largo de la escritura del programa. 
  # Si sigue este comentario, es que no se ha arreglado (srry)
@@ -128,19 +129,22 @@ class ejemploGUI(QMainWindow):
                         self.conexion.put(i)
                     self.cancelar_subida() # resetea la interfaz
                     self.probarlista() # volvemos a listar el directorio
-                    messagebox.showinfo("Subida finalizada", "Archivo(s) subido(s) correctamente")
+                    messagebox.showinfo("Subida finalizada", "Archivo(s) subido(s) correctamente") # se informa al usuario
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showerror("Error","No se ha podido subir la selección al servidor")
             self.recoger_error(f"{e} self.subida  {self.version}")
 
-  # hay que darles un trato especial a las carpetas de cara a subirlas. 
+  # hay que darles un trato especial a las carpetas de cara a subirlas, un porculo interesante.
+  # estas dos funciones probablemente se puedan unificar, pero es que ya me da tanta pereza por los rollos de las barras
+  # los directorios y las gilipolleces, que si está roto no lo arregles
 
     def subida_carpeta(self):
-        indice=self.archivo_subir.rfind("/")
+        indice=self.archivo_subir.rfind("/") # por alguna razón, al recoger la ruta con el qt5 las recoge con barras
+         # y luego hay que trabajar con contrabarras
         nombre_carpeta=self.archivo_subir[indice:] # recoges el nombre de la carpeta
-        self.conexion.makedirs(nombre_carpeta)
-        # para poder agregar la (nueva) ruta, necesitas este condicional según sea la root u otra carpeta
+        self.conexion.makedirs(nombre_carpeta) # se crea la carpeta en remoto
+        # para poder agregar la (nueva) ruta, necesitas este condicional según sea la root u otra carpeta el destino
         if self.directorio_actual=='/':
                 self.directorio_actual+=nombre_carpeta
         else:
@@ -160,7 +164,7 @@ class ejemploGUI(QMainWindow):
                 for file in files:
                     local_file = os.path.join(root, file)
                     remote_file = os.path.join(self.directorio_actual, os.path.relpath(local_file, self.archivo_subir))
-                    # recogemos la ruta para poder subir los archivos igual que antes
+                    # recogemos la ruta para poder subir los archivos igual que antes de manera ultraperezosa
                     remote_file=remote_file.replace("\\","/")
                     self.conexion.put(local_file, remote_file) # lo sube sin más
             self.carpeta_anterior() # no recuerdo por qué está pero bueno algún sentido tendrá
@@ -177,7 +181,7 @@ class ejemploGUI(QMainWindow):
 
  # Estas dos funciones permiten reestablecer la conexión. Tanto si se ha inicializado si la misma, se ha perdido durante la ejecución
  # o simplemente ha saltado error y quieres asegurarte de que todo funciona, en descargar y en subir tienes la posibilidad de hacerlo. 
- # Cada función corresponde a una pestaña (¡Ojo! Están al revés, sería tan sencillo como cambiar un número al ligar los botones
+ # Cada función corresponde a una pestaña (¡Ojo! Están al revés, sería tan sencillo como cambiar un número al ligar los botones,
  # pero bueno ahí está)
 
     def probar_conex(self):
@@ -189,10 +193,9 @@ class ejemploGUI(QMainWindow):
                 messagebox.showinfo("Finalizado", "Conexión reestablecida")
                 # Establece conexión e inica la aplicación bien
                 self.iniciar()
-        except Exception as e:
-            # Si salta error, se avisa al usuario y se manda un log al servidor.
+        except:
+            # Si salta error, se avisa al usuario no tiene sentido mandar log al server si no hay conexión
             messagebox.showerror("Error de conexión", "Asegúrate de pagar el wifi antes de volver a intentarlo")
-            self.recoger_error(f"{e} self.probarconex  {self.version}")
 
     def probar_conex2(self):
         cnopts=pysftp.CnOpts()
@@ -202,21 +205,21 @@ class ejemploGUI(QMainWindow):
                 self.conexion=conexion
                 messagebox.showinfo("Finalizado", "Conexión reestablecida")
                 self.iniciar()
-        except Exception as e:
-            # Si salta error, se avisa al usuario y se manda un log al servidor.
+        except:
+            # Si salta error, se avisa al usuario 
             messagebox.showerror("Error de conexión", "Asegúrate de pagar el wifi antes de volver a intentarlo")
-            self.recoger_error(f"{e} self.probarconex2  {self.version}")
 
 
- # Si se anula la subida, se fija lo necesario a False y se anulan la variable a la que estaba ligada (self.archivo_subir) y al 
- # botón de la derecha se le devuelve la función de "examinar"
+ # Si se anula la subida, se fija lo necesario a False y se anulan la variable a la que estaba ligada (self.archivo_subir) y 
+ # a los botones se les devuelve su función de examinar
 
     def cancelar_subida(self):
         self.cancelar.setEnabled(False)
         self.archivos.setEnabled(True)
         self.subir_carpetas.setEnabled(True)
         self.archivo_subir=None
-        # Vale, esto es un coñazo. Para poder desconectar todo, hay que ir probando
+        # Vale, esto es un coñazo. Para poder desconectar todo, hay que ir probando si tienen conexión a las funciones y reventarlas
+        # si es el caso
         try:
             self.archivos.clicked.disconnect(self.browsefiles)
         except:pass
@@ -238,29 +241,34 @@ class ejemploGUI(QMainWindow):
         self.etiqueta.setText("")
 
 
- # Esta es, básicamente, la función de examinar. Permite al usuario buscar en su SO los archivos que quiere subir, se genera un string como respuesta para una etiqueta y se cambian las etiquetas y botones de manera acorde.
+ # Esta es, básicamente, la función de examinar. Permite al usuario buscar en su SO los archivos que quiere subir, se genera un string
+ # como respuesta para una etiqueta y se cambian las etiquetas y botones de manera acorde.
  # Si es posible, mostrará una vista previa del último elemento visualizable de la lista.
 
     def browsefiles(self):
         try:
             fname = QFileDialog.getOpenFileNames(self, 'Open file') # Buscas el nombre de los archivos
+            # fname va a ser una lista con dos elementos. El primero es una lista de las rutas de los archivos, el segundo no sirve
             if fname[0] != '' or len(fname[0]) != 0: # si no está vacía la lista que devuelve, se configuran las etiquetas y botones
-                a = self.generar_string(fname[0])
+                a = self.generar_string(fname[0]) # generamos un string medio bonito
                 self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{a}')
                 self.archivo_subir = fname[0]
-                self.cancelar.setEnabled(True)
+                self.cancelar.setEnabled(True) # reconfiguramos la ventanita 
                 self.archivos.clicked.disconnect(self.browsefiles)
                 self.archivos.clicked.connect(self.subida)
                 self.archivos.setText("Subir archivo")
                 self.subir_carpetas.setEnabled(False)
-                self.mostrar_imagen()
+                self.mostrar_imagen() # y vista previa de la imagen
             else:
                 self.etiqueta.setText("No se ha seleccionado ningún archivo.")
         except IndexError:
-            # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado, no lo trataremos como un error.
+        # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado, no lo trataremos como un error.
             self.etiqueta.setText("No se ha seleccionado ningún archivo.")
 
-    def  browsefolders(self):
+
+ # Esta función permite elegir carpetas. Está separada de la otra porque no se puede seleccionar una mezcla de archivos y carpetas.
+
+    def browsefolders(self):
         try:
             fname = QFileDialog.getExistingDirectory(self, 'Open folder') # Recoges el directorio y repites como self.browsefiles()
             if fname != '' or len(fname) != 0:
@@ -274,39 +282,29 @@ class ejemploGUI(QMainWindow):
             else:
                 self.etiqueta.setText("No se ha seleccionado ninguna carpeta.")
         except IndexError:
-            # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado, no lo trataremos como un error.
+            # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado,
+            # no lo trataremos como un error.
             self.etiqueta.setText("No se ha seleccionado ninguna carpeta.")
- # Esta es de las funciones más importantes. Este método accede a la lista de la pestaña "Descargar" y añade los elementos que están en el servidor.
+ # Esta es de las funciones más importantes. Este método accede a la lista de la pestaña "Descargar" y añade los 
+ # elementos que están en el servidor.
 
     def probarlista(self):
         self.listWidget.clear()
         try:
                 with self.conexion.cd(self.directorio_actual):
-                    lista=self.conexion.listdir() # Obtenemos lo que hay en el directorio. En definitiva, la salida de los comandos "ls" o "dir"
+                    lista=self.conexion.listdir() # Obtenemos lo que hay en el directorio. En definitiva, la salida de los
+                    # comandos "ls" o "dir"
                     self.archivos_dir=[]
-                    self.carpetas_dir=list() # Con estas listas podremos separar archivos de carpetas,poniendo primero las carpetas. Además, no será necesario comprobar qué son a la hora de asignarles la foto
+                    self.carpetas_dir=list() # Con estas listas podremos separar archivos de carpetas, 
+                    # poniendo primero las carpetas. Además, no será necesario comprobar qué son a la hora de asignarles la foto
                     for nombre in lista:
-                        if nombre!='Reciclaje':
-                            if self.conexion.isdir(nombre)==True:
+                        if nombre!='Recicje': # Comprobamos que no es la carpeta de reciclaje
+                            # y que no está la misma en su ruta
+                            if self.conexion.isdir(nombre)==True: # Dependiendo de si es carpeta o archivo, se lleva a una lista o a otra
                                 self.carpetas_dir.append(nombre)
                             else: self.archivos_dir.append(nombre)
 
-                    # Una vez recogidos, se les asigna la foto, si es posible (si no se encontrara la foto que trae la aplicación, entonces no se mostraría)
-                    try:
-                        for i in self.carpetas_dir:
-                            item_carpeta = QListWidgetItem(i)
-                            item_carpeta.setIcon(QIcon("carpeta.png"))
-                            self.listWidget.addItem(item_carpeta)
-                    except:
-                        for i in self.carpetas_dir: self.listWidget.addItem(i)
-
-                    try:
-                        for i in self.archivos_dir:
-                            item_archivo=QListWidgetItem(i)
-                            item_archivo.setIcon(QIcon("Iconoarchivo.png"))
-                            self.listWidget.addItem(item_archivo)
-                    except:
-                        for i in self.archivos_dir: self.listWidget.addItem(i)
+                    self.imagenes_lista(self.listWidget)
                     self.brecilaje.setEnabled(False)
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
@@ -318,42 +316,86 @@ class ejemploGUI(QMainWindow):
             self.recoger_error(f"{e} self.probarlista  {self.version}")
         self.b_cambiarnom.setEnabled(False)
 
- # Este método permite obtener el archivo clickado en el listwidget de descargas y lo convierte en variable de clase para trabajar con ´él si se quiere descargar o se quiere entrar en esa carpeta.
+    def imagenes_lista(self, objeto):
+        try:
+            for i in self.carpetas_dir:
+                item_carpeta = QListWidgetItem(i)
+                item_carpeta.setIcon(QIcon("./Imágenes/carpeta.png"))
+                objeto.addItem(item_carpeta)
+        except:
+            for i in self.carpetas_dir: objeto.addItem(i)
+
+        for i in self.archivos_dir:
+                try:
+                    item_archivo=QListWidgetItem(i)
+                    i=f"    {i}"
+                    if i[-4:]==".png" or i[-4:]==".jpg" or i[-5:]==".jpeg":
+                        item_archivo.setIcon(QIcon("./Imágenes/Foto_imagen.png"))
+                        objeto.addItem(item_archivo)
+                    elif i[-4:]==".doc" or i[-5:]==".docx":
+                        item_archivo.setIcon(QIcon("./Imágenes/foto_word.png"))
+                        objeto.addItem(item_archivo)
+                    elif i[-5:]==".pptx":
+                        item_archivo.setIcon(QIcon("./Imágenes/Foto_powerpoint.png"))
+                        objeto.addItem(item_archivo)                                                
+                    elif i[-4:]==".csv":
+                        item_archivo.setIcon(QIcon("./Imágenes/Foto_csv.png"))
+                        objeto.addItem(item_archivo)  
+                    elif i[-4:]==".xls" or i[-5]=="xlsx":
+                        item_archivo.setIcon(QIcon("./Imágenes/Foto_excel.png"))
+                        objeto.addItem(item_archivo)                                                  
+                    elif i[-4:]==".txt":
+                        item_archivo.setIcon(QIcon("./Imágenes/foto_texto.png"))
+                        objeto.addItem(item_archivo)                         
+                    else:
+                        item_archivo.setIcon(QIcon("./Imágenes/Iconoarchivo.png"))
+                        objeto.addItem(item_archivo)
+                except Exception as e:
+                       print(e)
+                       objeto.addItem(i)
+
+ # Este método permite obtener el archivo clickado en el listwidget de descargas y lo convierte en variable de clase 
+ # para trabajar con él si se quiere descargar o se quiere entrar en esa carpeta.
 
     def seleccionar(self,lstItem):
         self.label_archivo_elegido.setText(f'Has elegido: {lstItem.text()}')
-        self.archivo_descargar=lstItem.text()
+        self.archivo_descargar=lstItem.text() # se recoge en variable de clase
+        # Se cambian los botones pertinentes
         self.bdescarga.setEnabled(True)
         self.b_cambiarnom.setEnabled(True)
         self.brecilaje.setEnabled(True)
+        # Si es una carpeta, se permitirá entrar en la misma
         if self.archivo_descargar in self.carpetas_dir:
             self.babrir_carpeta.setEnabled(True)
         else: self.babrir_carpeta.setEnabled(False)
 
 
- # Este método permite la descarga de la seleccion. Tras elegir el destino, se comprobará si se descarga un archivo o una carpeta para utilizar un método u otro de la librería y se ajustará la interfaz
+ # Este método permite la descarga de la seleccion. Tras elegir el destino, se comprobará si se descarga un archivo o una carpeta
+ # para utilizar un método u otro de la librería y se ajustará la interfaz
 
     def descargar(self):
         try:
             directorio_destino = QFileDialog.getExistingDirectory(None, "Seleccionar carpeta de destino")
             if directorio_destino:
                 if conexion.isdir(self.archivo_descargar):
-                    # Esto es una pesca un poco complicada para que pueda funcionar en cualquier sistema (bueno no hemos probado mac pero recemos)
-                    # Recomiendo no tocarlo, aunque ruta local no sirva para nada, este método es un poco delicado y quisquilloso en cuanto a los SO, mejor dejarla estar (si no está roto no lo arregles)
+        # Esto es una pesca un poco complicada para que pueda funcionar en cualquier sistema (bueno no hemos probado mac pero recemos)
+        # Recomiendo no tocarlo, este método es un poco delicado y quisquilloso en 
+        # cuanto a los SO, mejor dejarla estar (si no está roto no lo arregles)
                     pordescargar=self.directorio_actual+self.archivo_descargar
-                    ruta_local= os.path.join(directorio_destino,self.archivo_descargar)
-                    ruta_local=ruta_local.replace("/","\\")
                     self.conexion.get_r(pordescargar,directorio_destino)
                     self.label_archivo_elegido.setText('')
                     self.bdescarga.setEnabled(False)
                     self.archivo_descargar=None
                     messagebox.showinfo("Finalizado","Carpeta descargada")
                 else:
+                    # si es archivo la cosa es más tranquilo, no se romperá así como así
+                    # miras a ver las rutas para poder elegir
                     with self.conexion.cd(self.directorio_actual):
                         if self.directorio_actual!='/':
                             pordescargar=self.directorio_actual+'/'+self.archivo_descargar
                         else:
                             pordescargar=self.directorio_actual+self.archivo_descargar
+                        # arreglas ruta y lo mandas a descargar
                         self.conexion.get(pordescargar,localpath=os.path.join(directorio_destino,self.archivo_descargar))
                         self.label_archivo_elegido.setText('')
                         self.bdescarga.setEnabled(False)
@@ -365,10 +407,13 @@ class ejemploGUI(QMainWindow):
                messagebox.showerror("Error", "Ha habido un fallo al descargar")
                self.recoger_error(f"{e} self.descargar  {self.version}")
 
- # Este método tratará de mostrar la previsualización del archivo que se quiere subir al servidor. Según si es uno o varios, tratará de visualizarlo y ya está
- # o tratará de visualizar el último que sea posible (a ver si se pudiera hacer una buena división de la etiqueta o algo así y se pudieran ver)
+
+ # Este método tratará de mostrar la previsualización del archivo que se quiere subir al servidor. Según si es uno o varios, 
+ # tratará de visualizarlo y ya está  lo tratará de visualizar el último que sea posible (a ver si se pudiera 
+ # hacer una buena división de la etiqueta o algo así y se pudieran ver)
 
     def mostrar_imagen(self):
+            # si solo hay una foto pues se intenta visualizar y ya
             if len(self.archivo_subir)==1:
                     imagen_predeterminada = self.archivo_subir[0]
                     image = QImage(imagen_predeterminada)
@@ -378,7 +423,8 @@ class ejemploGUI(QMainWindow):
                 for imagen in self.archivo_subir:
                         imagen_predeterminada = imagen
                         image = QImage(imagen_predeterminada)
-                        if image.isNull() is False:
+                        # como hay varios, se tratará de mostrar el último que sea posible.
+                        if image.isNull() is False: # este método comprueba que no sea imposible mostrarla y procede a ello
                             self.prefoto.setPixmap(QPixmap.fromImage(image))
                             self.prefoto.setScaledContents(True)
 
@@ -386,7 +432,7 @@ class ejemploGUI(QMainWindow):
 
     def mostrar_logo_best(self,objeto):
         try:
-            imagen_predeterminada = 'Logo_apli.png'
+            imagen_predeterminada = './Imágenes/Logo_apli.png'
             image = QImage(imagen_predeterminada)
             objeto.setPixmap(QPixmap.fromImage(image))
             objeto.setScaledContents(True)
@@ -396,12 +442,14 @@ class ejemploGUI(QMainWindow):
 # y utilizará probar lista para mostrar el contenido de esa carpeta tras fijarla como directorio actual
 
     def abrir_carpeta(self):
+        # Miras a ver las rutas para echar cuentas
         try:
             if self.directorio_actual=='/':
                 self.directorio_actual+=self.archivo_descargar
             else:
                 self.directorio_actual+='/'+self.archivo_descargar
             self.archivo_descargar=None
+            # llamas a probarlista, listamos el nuevo directorio y se resetea un poco la interfaz
             self.probarlista()
             self.babrir_carpeta.setEnabled(False)
             self.volver_atras.setEnabled(True)
@@ -425,11 +473,13 @@ class ejemploGUI(QMainWindow):
  # La función self.carpeta_anterior() permite volver al directorio padre, obtenido con self.dir_padre()
 
     def carpeta_anterior(self):
+        # seguimos con el rollo de las rutas pero de manera algo más compleja
         if self.directorio_actual!='/' and self.dir_padre(self.directorio_actual)!='':
             self.directorio_actual=self.dir_padre(self.directorio_actual)
         else: self.directorio_actual='/'
         if self.directorio_actual=='/':
             self.volver_atras.setEnabled(False)
+        # arreglamos la interfaz
         self.label_archivo_elegido.setText('')
         self.probarlista()
         self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
@@ -448,29 +498,39 @@ class ejemploGUI(QMainWindow):
  # Se ajusta la interfaz y se lista de nuevo el directorio con la carpeta existente
 
     def crear_carpeta(self):
-        nombre_carpeta=askstring(" ","¿Cuál es el nombre de la carpeta?")
-        if nombre_carpeta=="": nombre_carpeta="Nueva Carpeta"
-        if nombre_carpeta:
+        nombre_carpeta=askstring(" ","¿Cuál es el nombre de la carpeta?") # Pedimos el nombre de la carpeta
+        if nombre_carpeta=="": nombre_carpeta="Nueva Carpeta" # si no hay nombre, se le da nueva carpeta 
+        if nombre_carpeta: # si no es false (durante la programación podía ser False, yo qué sé )
             try:
+                    # qué pereza ya las ruta coño    
                     if self.directorio_actual!='/': nueva=self.directorio_actual+'/'+nombre_carpeta
                     else: nueva=self.directorio_actual+nombre_carpeta
-                    if(self.conexion.isdir(nueva)==True):
-                        messagebox.showwarning("Error", "Nombre de la carpeta ya en uso aquí")
-                    else:
-                        self.conexion.makedirs(nueva)
-                        self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                        self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                        self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                        messagebox.showinfo("Finalizado","Carpeta creada correctamente")
-                        self.probarlista()
-                        self.volver_atras.setEnabled(True)
+
+                    i=2
+                    renombre=f"{nueva} ({i})"
+                    while(self.conexion.isdir(renombre)==True):
+                        renombre=renombre.replace(str(i),str(i+1))
+                        i+=1
+                    while(self.conexion.isfile(renombre)==True):
+                        renombre=renombre.replace(str(i),str(i+1))
+                        i+=1
+                    self.conexion.makedirs(renombre)
+                    self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                    self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                    self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+                    messagebox.showinfo("Finalizado","Carpeta creada correctamente")
+                    self.probarlista()
+
             except Exception as e:
                 # Si salta error, se avisa al usuario y se manda un log al servidor.
                 messagebox.showerror("Error", "No se ha podido crear la carpeta")
                 self.recoger_error(f"{e} self.crear_carpeta  {self.version}")
 
  # Permite renombrar una carpeta o archivo y comprueba si está o no en la raíz para crear
- # la ruta de manera adecuada y procede a llamar al servidor para cumplir el objetivo. Se reajusta la interfaz. No se permiten nombre iguales
+ # la ruta de manera adecuada y procede a llamar al servidor para cumplir el objetivo. Se reajusta la interfaz. 
+ # No se permiten nombre iguales
+
+ # Es idéntica a poner crear carpeta pero cambiando el makedirs por el rename
 
     def renombrar(self):
         try:
@@ -482,13 +542,29 @@ class ejemploGUI(QMainWindow):
                 else:
                     nueva=self.directorio_actual+nombre_carpeta
                     vieja=self.directorio_actual+self.archivo_descargar
+                if self.conexion.isdir(vieja)==False:
+                     indice=vieja.rfind(".")
+                     nueva+=vieja[indice:]
                 self.conexion.rename(vieja,nueva)
-                messagebox.showinfo("Finalizado","Carpeta renombrada correctamente")
+                messagebox.showinfo("Finalizado","Selección renombrada correctamente")
                 self.probarlista()
-                self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-                self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-        except OSError as e: messagebox.showwarning("Error","Nombre de la carpeta ya en uso en esta") # Se aisla para no confundirse con un error real
+                self.label_archivo_elegido.setText("")
+
+        except OSError as e: 
+                i=2
+                renombre=f"{nueva} ({i})"
+                while(self.conexion.isdir(renombre)==True):
+                    renombre=renombre.replace(str(i),str(i+1))
+                    i+=1
+                while(self.conexion.isfile(renombre)==True):
+                    renombre=renombre.replace(str(i),str(i+1))
+                    i+=1
+
+                self.conexion.rename(vieja,renombre)
+                self.label_archivo_elegido.setText("")
+                messagebox.showinfo("Finalizado","Selección renombrada correctamente")
+                self.probarlista()             
+         # Se aisla para no confundirse con un error real
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showwarning("Error","No se ha podido renombrar")
@@ -498,8 +574,7 @@ class ejemploGUI(QMainWindow):
  # para desplazar las selecciones a recicjale.
 
     def mover_reciclaje(self):
-        respuesta=messagebox.askyesno("¡Atención!","¿Seguro que quieres borrar este archivo?")
-        if respuesta:
+            respuesta=messagebox.askyesno("¡Atención!","¿Seguro que quieres borrar este archivo?") # se pregunta
             try:
                     if self.directorio_actual!='/':
                         objetivo="Reciclaje/"+self.archivo_descargar
@@ -508,15 +583,17 @@ class ejemploGUI(QMainWindow):
                         objetivo="Reciclaje"+self.directorio_actual+self.archivo_descargar
                         actual=self.directorio_actual+self.archivo_descargar
 
-                    while(self.conexion.isdir(objetivo)==True):
-                        self.archivo_descargar='Copia_'+self.archivo_descargar
-                        objetivo="Reciclaje"+'/'+self.archivo_descargar
-
-                    while(self.conexion.isfile(objetivo)==True):
-                        self.archivo_descargar='Copia_'+self.archivo_descargar
-                        objetivo="Reciclaje"+'/'+self.archivo_descargar
-
-                    self.conexion.rename(actual,objetivo)
+                    i=2
+                    renombre=f"{objetivo} ({i})"
+                    print(renombre)
+                    while(self.conexion.isdir(renombre)==True):
+                        renombre=renombre.replace(str(i),str(i+1))
+                        print(renombre)
+                        i+=1
+                    while(self.conexion.isfile(renombre)==True):
+                        renombre=renombre.replace(str(i),str(i+1))
+                        i+=1
+                    self.conexion.rename(actual,renombre)
                     self.probarlista()
             except Exception as e:
                 # Si salta error, se avisa al usuario y se manda un log al servidor.
@@ -527,12 +604,14 @@ class ejemploGUI(QMainWindow):
 
     def recoger_error(self, error):
             current_datetime = datetime.datetime.now()
-            date_time_string = current_datetime.strftime('%Y-%m-%d_%H:%M')
+            date_time_string = current_datetime.strftime('%Y-%m-%d_%H:%M') # Recoge día hora y le pone su nombre para aislar el log
             log_filename = f'registro_errores_{date_time_string}.txt'
             try:
                 with conexion.open(f"/Reciclaje/{log_filename}","a") as file:
-                    file.write(error)
-            except: pass # Si no se puede mandar al servidor, F porque no es plan guardarlos en local. Además, lo normal que si haya conexión y los fallos hayan dado debido a problemas con el servidor y con conexión
+                    file.write(error) # Se pone en modo añadir para que no se reescriba un error por otro del mismo min
+
+            except: pass # Si no se puede mandar al servidor, F porque no es plan guardarlos en local. 
+            # Además, lo normal que si haya conexión y los fallos hayan dado debido a problemas con el servidor y con conexión
     
 
  # Permite que puedas pulsar Enter en el listwidget de filtrar y funcione. Yo solo cambie el nombre del objeto, ni zorra del como va.
@@ -555,7 +634,9 @@ class ejemploGUI(QMainWindow):
                 try:
                     self.archivos_dir=[]
                     self.carpetas_dir=list()
+                    # Necesitamos una función complicada: walktree. Esta función es un coñazo pero devuelve todo el árbol a las listas
                     conexion.walktree('/',fcallback=self.añadir_fwalktree, dcallback=self.añadir_dirwalktree, ucallback=self.nada)
+                    # si está la búsqueda en la ruta, se recoge
                     for ruta in self.lista_rutas:
                         indice_barra = ruta.rfind("/")
                         archivo = ruta[indice_barra+1:]
@@ -564,27 +645,9 @@ class ejemploGUI(QMainWindow):
                                 self.carpetas_dir.append(ruta)
                             else: 
                                 self.archivos_dir.append(ruta)
-
-                    try:
-                        for i in self.carpetas_dir:
-                            item_carpeta = QListWidgetItem(i)
-                            item_carpeta.setIcon(QIcon("carpeta.png"))
-                            self.lista_filtro.addItem(item_carpeta)
-                    except:
-                        for i in self.carpetas_dir: self.lista_filtro.addItem(i)
-                    try:
-                        for i in self.archivos_dir:
-                            item_archivo=QListWidgetItem(i)
-                            item_archivo.setIcon(QIcon("Iconoarchivo.png"))
-                            self.lista_filtro.addItem(item_archivo)
-                    except:
-                        for i in self.archivos_dir: self.lista_filtro.addItem(i)
-                    if len(self.lista_filtro)!=0:
-                         messagebox.showinfo("Búsqueda finalizada",f"Se ha(n) encontrado {len(self.lista_filtro)} coincidencia(s)")
-                    else:
-                         messagebox.showwarning("Búsqueda finalizada","No se han encontrado coincidencias")
-                         self.ir_dir_filtro.setEnabled(False)
-                         
+                    # misma pesca para enseñarlos que en probarlista()
+                    self.imagenes_lista(self.lista_filtro)
+                                          
                 except Exception as e:
                     # Si salta error, se avisa al usuario y se manda un log al servidor.
                     messagebox.showerror("Error", "No se ha podido realizar la búsqueda")
@@ -593,9 +656,12 @@ class ejemploGUI(QMainWindow):
     def añadir_fwalktree(self,filename): self.lista_rutas.append(filename)
     def añadir_dirwalktree(self,dirname): self.lista_rutas.append(dirname)
     def nada(self): pass 
-    #Funciones necesarias para poder efectuar el conexion.walktree(). La función obliga a rellenar los parámetros, así que me invento esto. Solo añaden a las listas creadas arriba.
+    #Funciones necesarias para poder efectuar el conexion.walktree(). La función obliga a rellenar los parámetros, 
+    # así que me invento esto. Solo añaden a las listas creadas arriba.
 
- # el funcionamiento de este método es idéntico al de abrir carpeta normal, pero seleccionando la carpeta del listwidget_filtro y llevándote a la pestaña de descargas
+
+ # el funcionamiento de este método es idéntico al de abrir carpeta normal, pero seleccionando la carpeta del listwidget_filtro 
+ # y llevándote a la pestaña de descargas
 
     def abrir_carpeta_filtro(self):
         destino=self.archivo_filtrar
@@ -626,8 +692,9 @@ class ejemploGUI(QMainWindow):
          self.archivo_filtrar=item.text()
          self.ir_dir_filtro.setEnabled(True)
 
- # Este método es un porro que nos colocamos (mentira fui yo solo pero no me quería sentir tan mal vale?) para darle un string a la etiqueta de los archivos que se quieren subir
- # El string que recibe es la lista de selecciones y cambiará según si se manda un solo archivo, 3 o más y ajustará las tabulaciones para que se vean los nombres
+ # Este método es un porro que nos colocamos (mentira fui yo solo pero no me quería sentir tan mal vale?) para darle un string
+ # a la etiqueta de los archivos que se quieren subir. El string que recibe es la lista de selecciones y cambiará 
+ # según si se manda un solo archivo, 3 o más y ajustará las tabulaciones para que se vean los nombres
 
     def generar_string(self,fname):
         if len(fname)==1:
@@ -647,7 +714,7 @@ class ejemploGUI(QMainWindow):
                 ruta+=f"\t\t{i[indice_barra+1:]}"
         return ruta
 
-# Inicias de una puta vez y de verdad el programa, si falla se inicia sin conexión y si no funciona normal hasya que le des a la cruz
+# Inicias de una puta vez y de verdad el programa, si falla se inicia sin conexión y si no funciona normal hasta que le des a la cruz
 
 if __name__=='__main__':
     server_address = 'home500757070.1and1-data.host'
