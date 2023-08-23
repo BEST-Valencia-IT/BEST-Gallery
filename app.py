@@ -121,7 +121,7 @@ class ejemploGUI(QMainWindow):
     # se ponen las opciones estas para la conexión
         cnopts=pysftp.CnOpts()
         cnopts.hostkeys=None
-        self.etiqueta.setText("")
+        self.etiqueta.setText("")   
         try:
                 with self.conexion.cd(self.directorio_actual): #con el directorio elegido abierto
                     for i in self.archivo_subir:
@@ -298,7 +298,7 @@ class ejemploGUI(QMainWindow):
                     self.carpetas_dir=list() # Con estas listas podremos separar archivos de carpetas, 
                     # poniendo primero las carpetas. Además, no será necesario comprobar qué son a la hora de asignarles la foto
                     for nombre in lista:
-                        if nombre!='Recicje': # Comprobamos que no es la carpeta de reciclaje
+                        if nombre!='Reciclaje' or 'Reciclaje' in nombre: # Comprobamos que no es la carpeta de reciclaje
                             # y que no está la misma en su ruta
                             if self.conexion.isdir(nombre)==True: # Dependiendo de si es carpeta o archivo, se lleva a una lista o a otra
                                 self.carpetas_dir.append(nombre)
@@ -341,7 +341,7 @@ class ejemploGUI(QMainWindow):
                     elif i[-4:]==".csv":
                         item_archivo.setIcon(QIcon("./Imágenes/Foto_csv.png"))
                         objeto.addItem(item_archivo)  
-                    elif i[-4:]==".xls" or i[-5]=="xlsx":
+                    elif i[-4:]==".xls" or i[-5:]==".xlsx":
                         item_archivo.setIcon(QIcon("./Imágenes/Foto_excel.png"))
                         objeto.addItem(item_archivo)                                                  
                     elif i[-4:]==".txt":
