@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../../../home/pablopc2/.designer/backup/Logo_apli.png</normaloff>../../../../../../../../home/pablopc2/.designer/backup/Logo_apli.png</iconset>
+    <normaloff>./Imágenes/Logo_apli.png</normaloff>./Imágenes/Logo_apli.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
