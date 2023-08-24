@@ -21,84 +21,60 @@ import datetime
 
 class ejemploGUI(QMainWindow):
 
-    def __init__(self,conex=None):
+    def __init__(self,conex):
         super().__init__()
-        self.version=3.7
+        self.version=3.9
         self.conexion=conex
         uic.loadUi("Menu.ui",self)
-        self.setFixedSize(self.size())
-        
- # Este constructor está pensado para que reciba la conexión del servidor como un parámetro. Si este no estuviera, la aplicación puede iniciarse igualmente, pero su inicio por defecto
- # será vacío, de ahí que todo esté "seteado" a False. Esta primera parte del constructor hereda los elementos correspondientes de la
- # interfaz (ni zorra pero tiene que estar),y contiene la versión también (que suele y debería estar actualizada)
-
-        if self.conexion!=None:
-            self.iniciar()
-        else:
-            self.volver_atras.setEnabled(False)
-            self.bnueva_carpeta.setEnabled(False)
-            self.b_cambiarnom.setEnabled(False)
-            self.brecilaje.setEnabled(False)
-            self.babrir_carpeta.setEnabled(False)
-            self.bdescarga.setEnabled(False)
-            self.cancelar.setEnabled(False)
-            self.archivos.setEnabled(False)
-            self.try_conexion.clicked.connect(self.probar_conex)
-            self.try_conexion_2.clicked.connect(self.probar_conex2)
-            self.subir_carpetas.setEnabled(False)
-            self.ir_dir_filtro.setEnabled(False)
-            self.Buscar_filtro.setEnabled(False)
-            self.subir_carpetas.setEnabled(False)
-
-# Sin embargo, si recibe una conexión funcional, se activará inicar, que inicializa toda la aplicación, siendo el verdadero 
-# constructor aunque se aparte a una función.
+        self.setFixedSize(self.size())     
+        self.iniciar()   
 
     def iniciar(self):
-            self.b_cambiarnom.setEnabled(False)
-            self.cancelar.setEnabled(False)
-            self.archivos.clicked.connect(self.browsefiles)
-            self.cancelar.clicked.connect(self.cancelar_subida)
-            self.try_conexion.clicked.connect(self.probar_conex)
-            self.archivo_subir=None
-            self.joseluis = QPushButton("PyQt5 button") # Esto es TOTAL y ABSOLUTAMENTE necesario.
-            self.listWidget.itemClicked.connect(self.seleccionar)
-            self.bdescarga.clicked.connect(self.descargar)
-            self.lista_online=list()
-            self.directorio_actual='/'
-            self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-            self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-            self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
-            self.bdescarga.setEnabled(False)
-            self.try_conexion_2.clicked.connect(self.probar_conex2)
-            self.archivos_dir=[]
-            self.carpetas_dir=list()
-            self.mostrar_logo_best(self.logo_best)
-            self.mostrar_logo_best(self.logo_best2)
-            self.babrir_carpeta.clicked.connect(self.abrir_carpeta)
-            self.babrir_carpeta.setEnabled(False)
-            self.volver_atras.setEnabled(False)
-            self.volver_atras.clicked.connect(self.carpeta_anterior)
-            self.bnueva_carpeta.clicked.connect(self.crear_carpeta)
-            self.b_cambiarnom.clicked.connect(self.renombrar)
-            self.b_cambiarnom.setEnabled(False)
-            self.brecilaje.clicked.connect(self.mover_reciclaje)
-            self.listWidget.itemDoubleClicked.connect(self.seleccionar_carpeta)
-            self.lista_filtro.itemDoubleClicked.connect(self.abrir_carpeta_filtro)
-            self.lineEdit_filtro.setText("")
-            self.lineEdit_filtro.installEventFilter(self)
-            self.probarlista()
-            self.bnueva_carpeta.setEnabled(True)
-            self.b_cambiarnom.setEnabled(False)
-            self.archivos.setEnabled(True)
-            self.ir_dir_filtro.setEnabled(False)
-            self.ir_dir_filtro.clicked.connect(self.abrir_carpeta_filtro)
-            self.Buscar_filtro.clicked.connect(self.filtrar)
-            self.lista_filtro.itemClicked.connect(self.seleccionar_filtro)
-            self.subir_carpetas.clicked.connect(self.browsefolders)
-            self.Buscar_filtro.setEnabled(True)
-            self.subir_carpetas.setEnabled(True)
-            self.ir_dir_filtro.setEnabled(False)
-            self.brecilaje.setEnabled(False)
+        self.b_cambiarnom.setEnabled(False)
+        self.cancelar.setEnabled(False)
+        self.archivos.clicked.connect(self.browsefiles)
+        self.cancelar.clicked.connect(self.cancelar_subida)
+        self.try_conexion.clicked.connect(self.probar_conex)
+        self.archivo_subir=None
+        self.joseluis = QPushButton("PyQt5 button") # Esto es TOTAL y ABSOLUTAMENTE necesario.
+        self.listWidget.itemClicked.connect(self.seleccionar)
+        self.bdescarga.clicked.connect(self.descargar)
+        self.lista_online=list()
+        self.directorio_actual='/'
+        self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+        self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+        self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
+        self.bdescarga.setEnabled(False)
+        self.try_conexion_2.clicked.connect(self.probar_conex)
+        self.archivos_dir=[]
+        self.carpetas_dir=list()
+        self.mostrar_logo_best(self.logo_best)
+        self.mostrar_logo_best(self.logo_best2)
+        self.babrir_carpeta.clicked.connect(self.abrir_carpeta)
+        self.babrir_carpeta.setEnabled(False)
+        self.volver_atras.setEnabled(False)
+        self.volver_atras.clicked.connect(self.carpeta_anterior)
+        self.bnueva_carpeta.clicked.connect(self.crear_carpeta)
+        self.b_cambiarnom.clicked.connect(self.renombrar)
+        self.b_cambiarnom.setEnabled(False)
+        self.brecilaje.clicked.connect(self.mover_reciclaje)
+        self.listWidget.itemDoubleClicked.connect(self.seleccionar_carpeta)
+        self.lista_filtro.itemDoubleClicked.connect(self.abrir_carpeta_filtro)
+        self.lineEdit_filtro.setText("")
+        self.lineEdit_filtro.installEventFilter(self)
+        self.probarlista()
+        self.bnueva_carpeta.setEnabled(True)
+        self.b_cambiarnom.setEnabled(False)
+        self.archivos.setEnabled(True)
+        self.ir_dir_filtro.setEnabled(False)
+        self.ir_dir_filtro.clicked.connect(self.abrir_carpeta_filtro)
+        self.Buscar_filtro.clicked.connect(self.filtrar)
+        self.lista_filtro.itemClicked.connect(self.seleccionar_filtro)
+        self.subir_carpetas.clicked.connect(self.browsefolders)
+        self.Buscar_filtro.setEnabled(True)
+        self.subir_carpetas.setEnabled(True)
+        self.ir_dir_filtro.setEnabled(False)
+        self.brecilaje.setEnabled(False)
 
  # Inicar es algo complicado, ya que se deben unir todos los botones a sus respectivas funciones, fijar el estado de los 
  # mismos y darle a las etiquetas strings por defecto Muchas variables se mantienen como atributos de clase por su posible utilidad 
@@ -140,6 +116,7 @@ class ejemploGUI(QMainWindow):
   # los directorios y las gilipolleces, que si está roto no lo arregles
 
     def subida_carpeta(self):
+        subidas_falladas=list()
         indice=self.archivo_subir.rfind("/") # por alguna razón, al recoger la ruta con el qt5 las recoge con barras
          # y luego hay que trabajar con contrabarras
         nombre_carpeta=self.archivo_subir[indice:] # recoges el nombre de la carpeta
@@ -159,21 +136,26 @@ class ejemploGUI(QMainWindow):
                     remote_dir = os.path.join(self.directorio_actual, os.path.relpath(os.path.join(root, dir), self.archivo_subir))
                     remote_dir=remote_dir.replace("\\","/") # lo sustituye por si acaso fuera windows (bruh)
                     self.conexion.makedirs(remote_dir) # crea ese directorio si no existe
-
                 
                 for file in files:
                     local_file = os.path.join(root, file)
                     remote_file = os.path.join(self.directorio_actual, os.path.relpath(local_file, self.archivo_subir))
                     # recogemos la ruta para poder subir los archivos igual que antes de manera ultraperezosa
                     remote_file=remote_file.replace("\\","/")
-                    self.conexion.put(local_file, remote_file) # lo sube sin más
+                    try:
+                        self.conexion.put(local_file, remote_file) # lo sube sin más
+                    except:
+                        subidas_falladas.append(local_file)
             self.carpeta_anterior() # no recuerdo por qué está pero bueno algún sentido tendrá
             self.probarlista()
             # resetea todo 
             messagebox.showinfo("Subida finalizada","La carpeta se ha subido correctamente")
             self.cancelar_subida()
+            subidas_falladas=["hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola"]
+            if len(subidas_falladas)!=0:
+                 cadena="\n".join(subidas_falladas)
+                 messagebox.showwarning("Fallo",f"No se han podido subir los siguientes elementos:\n {subidas_falladas}")
         except Exception as e:
-            print(e)
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showerror("Error","No se ha podido subir la carpeta al servidor")
             self.recoger_error(f"{e} self.subida  {self.version}")
@@ -190,25 +172,12 @@ class ejemploGUI(QMainWindow):
         try:
                 conexion= pysftp.Connection(server_address,username ="u1881262367",password="FreeSpace420",cnopts=cnopts)
                 self.conexion=conexion
-                messagebox.showinfo("Finalizado", "Conexión reestablecida")
-                # Establece conexión e inica la aplicación bien
                 self.iniciar()
+                messagebox.showinfo("Finalizado", "Conexión reestablecida")
+                # Establece conexión
         except:
             # Si salta error, se avisa al usuario no tiene sentido mandar log al server si no hay conexión
             messagebox.showerror("Error de conexión", "Asegúrate de pagar el wifi antes de volver a intentarlo")
-
-    def probar_conex2(self):
-        cnopts=pysftp.CnOpts()
-        cnopts.hostkeys=None
-        try:
-                conexion= pysftp.Connection(server_address,username ="u1881262367",password="FreeSpace420",cnopts=cnopts)
-                self.conexion=conexion
-                messagebox.showinfo("Finalizado", "Conexión reestablecida")
-                self.iniciar()
-        except:
-            # Si salta error, se avisa al usuario 
-            messagebox.showerror("Error de conexión", "Asegúrate de pagar el wifi antes de volver a intentarlo")
-
 
  # Si se anula la subida, se fija lo necesario a False y se anulan la variable a la que estaba ligada (self.archivo_subir) y 
  # a los botones se les devuelve su función de examinar
@@ -232,7 +201,7 @@ class ejemploGUI(QMainWindow):
         try:
             self.subir_carpetas.clicked.disconnect(self.subida_carpeta)
         except: pass
-        # Con todo desconectado, recuperas los botones y los logos (aprovechamos su ausencia para remarcar que algo estaba mal)
+        # Con todo desconectado, recuperas los botones
         self.archivos.clicked.connect(self.browsefiles)
         self.subir_carpetas.clicked.connect(self.browsefolders)
         self.archivos.setText("Examinar archivo(s)")
@@ -250,7 +219,7 @@ class ejemploGUI(QMainWindow):
             fname = QFileDialog.getOpenFileNames(self, 'Open file') # Buscas el nombre de los archivos
             # fname va a ser una lista con dos elementos. El primero es una lista de las rutas de los archivos, el segundo no sirve
             if fname[0] != '' or len(fname[0]) != 0: # si no está vacía la lista que devuelve, se configuran las etiquetas y botones
-                a = self.generar_string(fname[0]) # generamos un string medio bonito
+                a = self.generar_string(fname[0]) # generamos un string medio bonito en una función que está por el final
                 self.etiqueta.setText(f'Archivos y ruta de los archivos:\n\n{a}')
                 self.archivo_subir = fname[0]
                 self.cancelar.setEnabled(True) # reconfiguramos la ventanita 
@@ -285,13 +254,16 @@ class ejemploGUI(QMainWindow):
             # Es el error que salta al cerrar la ventana. Como es lo único que puede ocurrir y está controlado,
             # no lo trataremos como un error.
             self.etiqueta.setText("No se ha seleccionado ninguna carpeta.")
+
  # Esta es de las funciones más importantes. Este método accede a la lista de la pestaña "Descargar" y añade los 
  # elementos que están en el servidor.
 
     def probarlista(self):
         self.listWidget.clear()
         try:
+                
                 with self.conexion.cd(self.directorio_actual):
+                    print("a")
                     lista=self.conexion.listdir() # Obtenemos lo que hay en el directorio. En definitiva, la salida de los
                     # comandos "ls" o "dir"
                     self.archivos_dir=[]
@@ -409,8 +381,8 @@ class ejemploGUI(QMainWindow):
 
 
  # Este método tratará de mostrar la previsualización del archivo que se quiere subir al servidor. Según si es uno o varios, 
- # tratará de visualizarlo y ya está  lo tratará de visualizar el último que sea posible (a ver si se pudiera 
- # hacer una buena división de la etiqueta o algo así y se pudieran ver)
+ # tratará de visualizar nel último que sea posible (a ver si se pudiera  hacer una buena división de la etiqueta o algo así y
+ # se pudieran ver)
 
     def mostrar_imagen(self):
             # si solo hay una foto pues se intenta visualizar y ya
@@ -501,20 +473,16 @@ class ejemploGUI(QMainWindow):
         nombre_carpeta=askstring(" ","¿Cuál es el nombre de la carpeta?") # Pedimos el nombre de la carpeta
         if nombre_carpeta=="": nombre_carpeta="Nueva Carpeta" # si no hay nombre, se le da nueva carpeta 
         if nombre_carpeta: # si no es false (durante la programación podía ser False, yo qué sé )
+            if self.directorio_actual!='/': nueva=self.directorio_actual+'/'+nombre_carpeta
+            else: nueva=self.directorio_actual+nombre_carpeta
             try:
                     # qué pereza ya las ruta coño    
-                    if self.directorio_actual!='/': nueva=self.directorio_actual+'/'+nombre_carpeta
-                    else: nueva=self.directorio_actual+nombre_carpeta
-
-                    i=2
-                    renombre=f"{nueva} ({i})"
-                    while(self.conexion.isdir(renombre)==True):
-                        renombre=renombre.replace(str(i),str(i+1))
-                        i+=1
-                    while(self.conexion.isfile(renombre)==True):
-                        renombre=renombre.replace(str(i),str(i+1))
-                        i+=1
-                    self.conexion.makedirs(renombre)
+                    if self.conexion.isdir(nueva):
+                        i=2
+                        while(self.conexion.isdir(f"{nueva} ({i})")==True):                            
+                            i+=1
+                        nueva=f"{nueva} ({i})"                        
+                    self.conexion.makedirs(nueva)
                     self.label_3.setText(f"Estás en esta carpeta: {self.directorio_actual}")
                     self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
                     self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
@@ -542,29 +510,18 @@ class ejemploGUI(QMainWindow):
                 else:
                     nueva=self.directorio_actual+nombre_carpeta
                     vieja=self.directorio_actual+self.archivo_descargar
-                if self.conexion.isdir(vieja)==False:
-                     indice=vieja.rfind(".")
-                     nueva+=vieja[indice:]
-                self.conexion.rename(vieja,nueva)
+                if self.conexion.isdir(nueva)==True:
+                    i=2
+                    while(self.conexion.isdir(f"{nueva} ({i})")==True):
+                        i+=1
+                    while(self.conexion.isfile(f"{nueva} ({i})")==True):
+                        i+=1
+                    nueva=f"{nueva} ({i})"
+                    self.conexion.rename(vieja,nueva)
                 messagebox.showinfo("Finalizado","Selección renombrada correctamente")
                 self.probarlista()
                 self.label_archivo_elegido.setText("")
 
-        except OSError as e: 
-                i=2
-                renombre=f"{nueva} ({i})"
-                while(self.conexion.isdir(renombre)==True):
-                    renombre=renombre.replace(str(i),str(i+1))
-                    i+=1
-                while(self.conexion.isfile(renombre)==True):
-                    renombre=renombre.replace(str(i),str(i+1))
-                    i+=1
-
-                self.conexion.rename(vieja,renombre)
-                self.label_archivo_elegido.setText("")
-                messagebox.showinfo("Finalizado","Selección renombrada correctamente")
-                self.probarlista()             
-         # Se aisla para no confundirse con un error real
         except Exception as e:
             # Si salta error, se avisa al usuario y se manda un log al servidor.
             messagebox.showwarning("Error","No se ha podido renombrar")
@@ -575,30 +532,28 @@ class ejemploGUI(QMainWindow):
 
     def mover_reciclaje(self):
             respuesta=messagebox.askyesno("¡Atención!","¿Seguro que quieres borrar este archivo?") # se pregunta
-            try:
-                    if self.directorio_actual!='/':
-                        objetivo="Reciclaje/"+self.archivo_descargar
-                        actual=self.directorio_actual+'/'+self.archivo_descargar
-                    else:
-                        objetivo="Reciclaje"+self.directorio_actual+self.archivo_descargar
-                        actual=self.directorio_actual+self.archivo_descargar
-
-                    i=2
-                    renombre=f"{objetivo} ({i})"
-                    print(renombre)
-                    while(self.conexion.isdir(renombre)==True):
-                        renombre=renombre.replace(str(i),str(i+1))
-                        print(renombre)
-                        i+=1
-                    while(self.conexion.isfile(renombre)==True):
-                        renombre=renombre.replace(str(i),str(i+1))
-                        i+=1
-                    self.conexion.rename(actual,renombre)
-                    self.probarlista()
-            except Exception as e:
-                # Si salta error, se avisa al usuario y se manda un log al servidor.
-                messagebox.showerror("Error","No se ha podido borrar la selección")
-                self.recoger_error(f"{e} self.mover_reciclaje {self.version}")
+            if respuesta==True:
+                try:
+                        if self.directorio_actual!='/':
+                            objetivo="Reciclaje/"+self.archivo_descargar
+                            actual=self.directorio_actual+'/'+self.archivo_descargar
+                        else:
+                            objetivo="Reciclaje"+self.directorio_actual+self.archivo_descargar
+                            actual=self.directorio_actual+self.archivo_descargar
+                        if self.conexion.isdir(objetivo) or self.conexion.isfile(objetivo):
+                            i=2
+                            while(self.conexion.isdir(f"{objetivo} ({i})")==True):
+                                i+=1
+                            while(self.conexion.isfile(f"{objetivo} ({i})")==True):
+                                i+=1
+                            objetivo=f"{objetivo} ({i})"
+                        self.conexion.rename(actual,objetivo)
+                        self.probarlista()
+                except Exception as e:
+                    print(e)
+                    # Si salta error, se avisa al usuario y se manda un log al servidor.
+                    messagebox.showerror("Error","No se ha podido borrar la selección")
+                    self.recoger_error(f"{e} self.mover_reciclaje {self.version}")
 
  # Esta es la función que permite obtener los errores ocurridos en la interfaz. Es posible que aún salten errores controlados
 
@@ -717,8 +672,8 @@ class ejemploGUI(QMainWindow):
 # Inicias de una puta vez y de verdad el programa, si falla se inicia sin conexión y si no funciona normal hasta que le des a la cruz
 
 if __name__=='__main__':
-    server_address = 'home500757070.1and1-data.host'
     try:
+        server_address = 'home500757070.1and1-data.host'
         cnopts=pysftp.CnOpts()
         cnopts.hostkeys=None
         conexion= pysftp.Connection(server_address,username ="u1881262367",password="FreeSpace420",cnopts=cnopts)
@@ -726,8 +681,6 @@ if __name__=='__main__':
         GUI= ejemploGUI(conexion)
         GUI.show()
         sys.exit(app.exec_())
-    except:
-         app=QApplication(sys.argv)
-         GUI= ejemploGUI()
-         GUI.show()
-         sys.exit(app.exec_())
+    except Exception as e:
+        messagebox.showerror("Error de conexión", "No se ha podido establecer conexión. Paga el wifi")
+            
