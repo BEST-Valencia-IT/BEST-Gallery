@@ -27,14 +27,10 @@ class ejemploGUI(QMainWindow):
         self.conexion=conex
         uic.loadUi("Menu.ui",self)
         self.setFixedSize(self.size())     
-        self.iniciar()   
-
-    def iniciar(self):
         self.b_cambiarnom.setEnabled(False)
         self.cancelar.setEnabled(False)
         self.archivos.clicked.connect(self.browsefiles)
         self.cancelar.clicked.connect(self.cancelar_subida)
-        self.try_conexion.clicked.connect(self.probar_conex)
         self.archivo_subir=None
         self.joseluis = QPushButton("PyQt5 button") # Esto es TOTAL y ABSOLUTAMENTE necesario.
         self.listWidget.itemClicked.connect(self.seleccionar)
@@ -45,7 +41,6 @@ class ejemploGUI(QMainWindow):
         self.label_4.setText(f"Estás en esta carpeta: {self.directorio_actual}")
         self.label_5.setText(f"Estás en esta carpeta: {self.directorio_actual}")
         self.bdescarga.setEnabled(False)
-        self.try_conexion_2.clicked.connect(self.probar_conex)
         self.archivos_dir=[]
         self.carpetas_dir=list()
         self.mostrar_logo_best(self.logo_best)
@@ -151,7 +146,6 @@ class ejemploGUI(QMainWindow):
             # resetea todo 
             messagebox.showinfo("Subida finalizada","La carpeta se ha subido correctamente")
             self.cancelar_subida()
-            subidas_falladas=["hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola","hola"]
             if len(subidas_falladas)!=0:
                  cadena="\n".join(subidas_falladas)
                  messagebox.showwarning("Fallo",f"No se han podido subir los siguientes elementos:\n {subidas_falladas}")
@@ -160,24 +154,6 @@ class ejemploGUI(QMainWindow):
             messagebox.showerror("Error","No se ha podido subir la carpeta al servidor")
             self.recoger_error(f"{e} self.subida  {self.version}")
 
-
- # Estas dos funciones permiten reestablecer la conexión. Tanto si se ha inicializado si la misma, se ha perdido durante la ejecución
- # o simplemente ha saltado error y quieres asegurarte de que todo funciona, en descargar y en subir tienes la posibilidad de hacerlo. 
- # Cada función corresponde a una pestaña (¡Ojo! Están al revés, sería tan sencillo como cambiar un número al ligar los botones,
- # pero bueno ahí está)
-
-    def probar_conex(self):
-        cnopts=pysftp.CnOpts()
-        cnopts.hostkeys=None
-        try:
-                conexion= pysftp.Connection(server_address,username ="u1881262367",password="FreeSpace420",cnopts=cnopts)
-                self.conexion=conexion
-                self.iniciar()
-                messagebox.showinfo("Finalizado", "Conexión reestablecida")
-                # Establece conexión
-        except:
-            # Si salta error, se avisa al usuario no tiene sentido mandar log al server si no hay conexión
-            messagebox.showerror("Error de conexión", "Asegúrate de pagar el wifi antes de volver a intentarlo")
 
  # Si se anula la subida, se fija lo necesario a False y se anulan la variable a la que estaba ligada (self.archivo_subir) y 
  # a los botones se les devuelve su función de examinar
@@ -263,7 +239,6 @@ class ejemploGUI(QMainWindow):
         try:
                 
                 with self.conexion.cd(self.directorio_actual):
-                    print("a")
                     lista=self.conexion.listdir() # Obtenemos lo que hay en el directorio. En definitiva, la salida de los
                     # comandos "ls" o "dir"
                     self.archivos_dir=[]

@@ -27,13 +27,13 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>./Imágenes/Logo_apli.png</normaloff>./Imágenes/Logo_apli.png</iconset>
+    <normaloff>Imágenes/Logo_apli.png</normaloff>Imágenes/Logo_apli.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>10</y>
       <width>1131</width>
       <height>841</height>
@@ -49,9 +49,9 @@
      <widget class="QListWidget" name="listWidget">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>180</x>
         <y>170</y>
-        <width>641</width>
+        <width>711</width>
         <height>391</height>
        </rect>
       </property>
@@ -59,6 +59,9 @@
        <font>
         <pointsize>18</pointsize>
        </font>
+      </property>
+      <property name="cursor" stdset="0">
+       <cursorShape>PointingHandCursor</cursorShape>
       </property>
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAsNeeded</enum>
@@ -80,7 +83,7 @@
      <widget class="QPushButton" name="bdescarga">
       <property name="geometry">
        <rect>
-        <x>400</x>
+        <x>180</x>
         <y>620</y>
         <width>311</width>
         <height>81</height>
@@ -88,19 +91,6 @@
       </property>
       <property name="text">
        <string>Descargar</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="try_conexion_2">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>640</y>
-        <width>171</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Reestablecer conexión</string>
       </property>
      </widget>
      <widget class="QLabel" name="etiqueta2_2">
@@ -145,9 +135,9 @@
      <widget class="QPushButton" name="babrir_carpeta">
       <property name="geometry">
        <rect>
-        <x>860</x>
+        <x>660</x>
         <y>630</y>
-        <width>161</width>
+        <width>231</width>
         <height>71</height>
        </rect>
       </property>
@@ -158,14 +148,37 @@
      <widget class="QPushButton" name="volver_atras">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>60</x>
         <y>170</y>
-        <width>121</width>
-        <height>51</height>
+        <width>91</width>
+        <height>61</height>
        </rect>
       </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>48</pointsize>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>ArrowCursor</cursorShape>
+      </property>
+      <property name="mouseTracking">
+       <bool>false</bool>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
-       <string>Volver atrás</string>
+       <string>↵</string>
       </property>
      </widget>
      <widget class="QPushButton" name="brecilaje">
@@ -215,10 +228,10 @@
      <widget class="QPushButton" name="archivos">
       <property name="geometry">
        <rect>
-        <x>650</x>
-        <y>670</y>
-        <width>151</width>
-        <height>71</height>
+        <x>480</x>
+        <y>660</y>
+        <width>221</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="contextMenuPolicy">
@@ -242,19 +255,6 @@
       </property>
       <property name="text">
        <string>Cancelar</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="try_conexion">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>680</y>
-        <width>171</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Reestablecer conexión</string>
       </property>
      </widget>
      <widget class="QLabel" name="label">
@@ -357,10 +357,10 @@ que quieres subir el archivo  en la pestaña &quot;Descargar&quot;</string>
      <widget class="QPushButton" name="subir_carpetas">
       <property name="geometry">
        <rect>
-        <x>900</x>
-        <y>670</y>
-        <width>151</width>
-        <height>71</height>
+        <x>810</x>
+        <y>660</y>
+        <width>231</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="contextMenuPolicy">
